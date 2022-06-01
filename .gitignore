@@ -131,3 +131,6 @@ dmypy.json
 # JetBrains shit
 .idea
 *.DS_Store
+
+# Dataset
+nfcorpus/
