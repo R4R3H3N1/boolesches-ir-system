@@ -3,7 +3,7 @@ import re
 
 
 def get_token_from_line(line):
-    return [x.lower() for x in re.split(" |\"|\?|,|!|.|&", line) if x != '']
+    return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]]", line) if x != '']
 
 
 def tokenize_documents(documents):
