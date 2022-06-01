@@ -15,3 +15,5 @@ def tokenize_documents(documents):
                 new_tokens = get_token_from_line(line)
                 for new_token in new_tokens:
                     tokens.append(new_token)
+
+    return tokens
