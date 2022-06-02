@@ -16,7 +16,7 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
         docID, text = tmp[0], tmp[1]
         new_tokens = get_token_from_line(text)
 
-        yield docID, new_tokens
+        yield int(docID), new_tokens
 
 
 # --------------------------------------------------------------------------- #
@@ -35,7 +35,8 @@ def parse_doc_dump() -> None:
         docContent = re.split(r'\t', line)
         ID, abstract = docContent[0], docContent[3]
 
-        abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip()
+        ID = ID.replace('MED-', '')
+        abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip() #preface
 
         newDocument += (ID + '$$$' + abstract + '\n')
         # //TODO allgemeiner, nicht von $$$ abhängig
@@ -52,6 +53,9 @@ if __name__ == '__main__':
     i = indexer.Index('ID.txt')
     #i.to_json()
 
-    #print(i.merge('background', 'placenta'))
-    #print(i.merge('and', 'lacked'))
+    print(i.merge('acrylamide-containing', 'background', operator='and'))
+
+    print(i.merge('acrylamide-containing', 'placenta', operator='or'))
+
+    print(i.merge('and', operator='not'))
 
