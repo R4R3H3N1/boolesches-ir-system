@@ -1,7 +1,6 @@
 from tokenizer import tokenize_documents
 import json
 
-
 class Index:
     def __init__(self, filename: str):
         # dict[TermIndex, Postinglist]
@@ -12,7 +11,7 @@ class Index:
 
         self.invoke_toknizer(filename)
 
-    def invoke_toknizer(self, filename: str):
+    def invoke_toknizer(self, filename: str) -> None:
         try:
             with open(filename, 'r', encoding='utf8') as f:
                 file = f.read()
@@ -39,14 +38,14 @@ class Index:
         for key, val in self.idx.items():
             val.final_sort()
 
-    def to_json(self):
+    def to_json(self) -> None:
         obj = {}
         for key, val in self.idx.items():
             obj.update({key.term:val.plist[1:10]})
         with open('index.json', 'w') as f:
             json.dump(obj, f)
 
-    def from_json(self, filename: str):
+    def from_json(self, filename: str) -> None:
         pass
 
 
@@ -75,12 +74,12 @@ class Postinglist:
 
         self.append(docID)
 
-    def append(self, docID: str):
+    def append(self, docID: str) -> None:
         if docID in self.seenDocIDs:
             pass
         else:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
 
-    def final_sort(self):
+    def final_sort(self) -> None:
         self.plist = sorted(self.plist)

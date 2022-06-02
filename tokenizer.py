@@ -1,10 +1,11 @@
 import re, os, sys
-from indexer import Index
+import indexer
+from typing import List, Generator, Tuple
 
-def get_token_from_line(line):
+def get_token_from_line(line: str) -> List[str]:
     return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]]", line) if x != '']
 
-def tokenize_documents(documents: list[str]):
+def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]], None, None]:
     """    tokens = []
     for i in range(len(documents)):
         with open(documents[i]) as doc:
@@ -26,7 +27,7 @@ def tokenize_documents(documents: list[str]):
 
 
 
-def parse_doc_dump():
+def parse_doc_dump() -> None:
     # nfcorpus/raw/doc_dump.txt
     # Format pro Zeile ID \t URL \t TITLE \t ABSTRACT \r\n
     # ID und ABSTRACT extrahieren
@@ -56,5 +57,6 @@ if __name__ == '__main__':
     # creates ID.txt
     #parse_doc_dump()
 
-    i = Index('ID.txt')
+    i = indexer.Index('ID.txt')
     i.to_json()
+    
