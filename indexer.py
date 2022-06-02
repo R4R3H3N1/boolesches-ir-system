@@ -1,16 +1,19 @@
 from tokenizer import tokenize_documents
 import json
+from typing import Type, List
+
 
 class Index:
     def __init__(self, filename: str):
         # dict[TermIndex, Postinglist]
         self.idx = {}
-        self.termClassMapping = {}   # sollte auch bei index anfragen verwendet werden müssen
+        self.termClassMapping = {}
         # sort term, dann sort docid
         # sortieren term überspringen, da kein unterschied in dict?
 
         self.invoke_toknizer(filename)
 
+    # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
         try:
             with open(filename, 'r', encoding='utf8') as f:
@@ -38,17 +41,39 @@ class Index:
         for key, val in self.idx.items():
             val.final_sort()
 
+    # --------------------------------------------------------------------------- #
     def to_json(self) -> None:
         obj = {}
         for key, val in self.idx.items():
-            obj.update({key.term:val.plist[1:10]})
+            obj.update({key.term:(key.occurence, val.plist[1:10])})
         with open('index.json', 'w') as f:
             json.dump(obj, f)
 
+    # --------------------------------------------------------------------------- #
     def from_json(self, filename: str) -> None:
         pass
 
+    # --------------------------------------------------------------------------- #
+    def merge(self, str1, str2) -> List[str]:
+        # //TODO mehrere Postinglisten
+        Postinglist1 = self.idx[self.termClassMapping[str1]]
+        Postinglist2 = self.idx[self.termClassMapping[str2]]
 
+        stop1, stop2 = len(Postinglist1), len(Postinglist2)
+        p1, p2 = 0, 0
+        answer = []
+
+        while p1 < stop1 and p2 < stop2:
+            if Postinglist1[p1] == Postinglist2[p2]:
+                answer.append(Postinglist1[p1])
+                p1 += 1
+                p2 += 1
+            else:
+                if Postinglist1[p1] < Postinglist2[p2]:
+                    p1 += 1
+                else:
+                    p2 += 1
+        return answer
 
 class TermIndex:
     __slots__ = ('term', 'occurence')  # membervars hier hinzufügen
@@ -74,6 +99,13 @@ class Postinglist:
 
         self.append(docID)
 
+    def __len__(self):
+        return len(self.plist)
+
+    def __getitem__(self, idx):
+        return self.plist[idx]
+
+    # --------------------------------------------------------------------------- #
     def append(self, docID: str) -> None:
         if docID in self.seenDocIDs:
             pass
@@ -83,3 +115,5 @@ class Postinglist:
 
     def final_sort(self) -> None:
         self.plist = sorted(self.plist)
+
+
