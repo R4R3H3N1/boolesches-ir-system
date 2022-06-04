@@ -11,13 +11,15 @@ class Index:
         self.dictionary = {}
         self.termClassMapping = {}
         self.documentIDs = set()
-        # sort term, dann sort docid
-        # sortieren term überspringen, da kein unterschied in dict?
+        # TODO Sortierungsschritte (notwendig?)
 
         self.invoke_toknizer(filename)
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
+        # TODO skip-pointer
+        # TODO nur Differenz der DocIDs speichern
+
         try:
             with open(filename, 'r', encoding='utf8') as f:
                 file = f.read()
@@ -28,6 +30,7 @@ class Index:
 
 
         for docID, tokens in tokenize_documents(docs):
+            positionCounter = 1
             self.documentIDs.add(docID)
             for token in tokens:
                 try:
@@ -37,10 +40,12 @@ class Index:
                     self.termClassMapping[token] = ti
 
                 try:
-                    self.dictionary[ti].append(docID)
+                    self.dictionary[ti].append(docID, positionCounter)
                     ti.occurence += 1
                 except KeyError:
-                    self.dictionary[ti] = Postinglist(docID)
+                    self.dictionary[ti] = Postinglist(docID, positionCounter)
+
+                positionCounter += 1
 
         for key, val in self.dictionary.items():
             val.final_sort()
@@ -55,11 +60,12 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     def from_json(self, filename: str) -> None:
+        # // TODO implement
         pass
 
     # --------------------------------------------------------------------------- #
     def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
-        # //TODO mehrere Postinglisten
+        # TODO mehrere Postinglisten
         Postinglist1 = self.dictionary[self.termClassMapping[str1]]
         if str2:
             Postinglist2 = self.dictionary[self.termClassMapping[str2]]
@@ -172,17 +178,19 @@ class TermIndex:
 
 # =========================================================================== #
 class Postinglist:
-    __slots__ = ('plist', 'seenDocIDs')
+    __slots__ = ('plist', 'seenDocIDs', 'positions', 'counts')
 
-    def __init__(self, docID: str):
-        # array.array
-        # numpy array
-        # oder liste
-        self.plist = []
+    def __init__(self, docID: str, position: int):
+        # TODO array.array, numpy array oder liste?
+        self.plist = []   # List of sorted DocIDs
+
+        self.positions = {}  # map docID:positions within docID
+        self.counts = {} # map docID:#occurence within docID
+        # TODO counts notwendig?
+        # TODO ein Objekt für alle drei?
+
         self.seenDocIDs = set()
-        # Sortierung!
-
-        self.append(docID)
+        self.append(docID, position)
 
     def __len__(self):
         return len(self.plist)
@@ -190,8 +198,18 @@ class Postinglist:
     def __getitem__(self, idx):
         return self.plist[idx]
 
-    # --------------------------------------------------------------------------- #
-    def append(self, docID: str) -> None:
+    def append(self, docID: str, position: int) -> None:
+        # TODO wenn in verschiedenen Objekten, dann in Funktionen aufspalten
+        try:
+            self.positions[docID].append(position)
+        except KeyError:
+            self.positions[docID] = [position]
+
+        try:
+            self.counts[docID] += 1
+        except KeyError:
+            self.counts[docID] = 1
+
         if docID in self.seenDocIDs:
             pass
         else:

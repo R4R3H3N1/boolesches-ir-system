@@ -9,6 +9,10 @@ def get_token_from_line(line: str) -> List[str]:
 
 # --------------------------------------------------------------------------- #
 def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]], None, None]:
+    """
+    :param documents: list of documents
+    :return: generator - docID, tokens in order of apperance
+    """
     for line in documents:
         tmp = re.split(r'\$\$\$', line)
         if len(tmp) != 2: # warum taucht leerstring auf?
@@ -21,6 +25,8 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
 
 # --------------------------------------------------------------------------- #
 def parse_doc_dump() -> None:
+    # TODO case-folding and further preprocessing
+
     docdumpPath = os.path.join(os.getcwd(), 'nfcorpus', 'raw', 'doc_dump.txt')
     newDocument = ''
     try:
@@ -39,7 +45,7 @@ def parse_doc_dump() -> None:
         abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip() #preface
 
         newDocument += (ID + '$$$' + abstract + '\n')
-        # //TODO allgemeiner, nicht von $$$ abhängig
+        # TODO allgemeiner, nicht von $$$ abhängig
 
     with open('ID.txt', 'w', encoding='utf8') as f:
         f.write(newDocument)
