@@ -25,7 +25,7 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
 
 # --------------------------------------------------------------------------- #
 def parse_doc_dump() -> None:
-    # TODO case-folding and further preprocessing
+    # TODO further preprocessing?
 
     docdumpPath = os.path.join(os.getcwd(), 'nfcorpus', 'raw', 'doc_dump.txt')
     newDocument = ''
@@ -42,10 +42,11 @@ def parse_doc_dump() -> None:
         ID, abstract = docContent[0], docContent[3]
 
         ID = ID.replace('MED-', '')
-        abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip() #preface
+        abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip()
 
         newDocument += (ID + '$$$' + abstract + '\n')
         # TODO allgemeiner, nicht von $$$ abhängig
+        # TODO strings wie $$$BACKGROUND oder $$$preface auch entfernen (?)
 
     with open('ID.txt', 'w', encoding='utf8') as f:
         f.write(newDocument)
@@ -59,9 +60,13 @@ if __name__ == '__main__':
     i = indexer.Index('ID.txt')
     #i.to_json()
 
-    print(i.merge('acrylamide-containing', 'background', operator='and'))
+    # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
-    print(i.merge('acrylamide-containing', 'placenta', operator='or'))
+    print(i.phrase_query('capsaicin', 'contained'))
 
-    print(i.merge('and', operator='not'))
+    print(i.proximity_query('useful', 'kiwifruit', k=4))
+
+    #print(i.merge('acrylamide-containing', 'background', operator='and'))
+    #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
+    #print(i.merge('and', operator='not'))
 

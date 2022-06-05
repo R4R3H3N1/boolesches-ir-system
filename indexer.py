@@ -63,6 +63,12 @@ class Index:
         # // TODO implement
         pass
 
+
+    # --------------------------------------------------------------------------- #
+    def query(self):
+        pass
+
+
     # --------------------------------------------------------------------------- #
     def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
         # TODO mehrere Postinglisten
@@ -82,6 +88,40 @@ class Index:
 
         elif operator in ['and not', 'AND NOT']:
             return self.merge_ANDNOT(Postinglist1.plist, Postinglist2.plist)
+
+
+    # --------------------------------------------------------------------------- #
+    def phrase_query(self, term1: str, term2: str, term3: str = None) -> List[int]:
+        Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+        Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+
+        candidates = self.merge_AND(Postinglist1, Postinglist2)
+        result = []
+
+        for docID in candidates:
+            for pos1 in Postinglist1.positions[docID]:
+                for pos2 in Postinglist2.positions[docID]:
+                    if pos1 == pos2 - 1:
+                        result.append(docID)
+
+        return result
+
+
+    # --------------------------------------------------------------------------- #
+    def proximity_query(self, term1: str, term2: str, k: int = 1) -> List[int]:
+        Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+        Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+
+        candidates = self.merge_AND(Postinglist1, Postinglist2)
+        result = []
+
+        for docID in candidates:
+            for pos1 in Postinglist1.positions[docID]:
+                for pos2 in Postinglist2.positions[docID]:
+                    if abs(pos1-pos2) <= k:
+                        result.append(docID)
+
+        return result
 
 
     # --------------------------------------------------------------------------- #
