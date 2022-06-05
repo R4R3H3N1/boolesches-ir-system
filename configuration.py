@@ -7,3 +7,5 @@ PARSE_DOC_DUMP = True
 WRITE_DICTIONARY_INTO_JSON = True
 
 READ_DICTIONARY_FROM_JSON = False
+
+ABSTRACT_BEGINNINGS = ["Abstract", "Preface", "Summary", "Short", "Synopsis", "Excerpt"]

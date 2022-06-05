@@ -3,6 +3,7 @@ import json
 from typing import Type, List, Set
 from configuration import *
 
+
 # =========================================================================== #
 class Index:
     __slots__ = ('dictionary', 'termClassMapping', 'documentIDs')
@@ -66,11 +67,9 @@ class Index:
         # // TODO implement
         pass
 
-
     # --------------------------------------------------------------------------- #
     def query(self):
         pass
-
 
     # --------------------------------------------------------------------------- #
     def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
@@ -92,7 +91,6 @@ class Index:
         elif operator in ['and not', 'AND NOT']:
             return self.merge_ANDNOT(Postinglist1.plist, Postinglist2.plist)
 
-
     # --------------------------------------------------------------------------- #
     def phrase_query(self, term1: str, term2: str, term3: str = None) -> List[int]:
         Postinglist1 = self.dictionary[self.termClassMapping[term1]]
@@ -109,7 +107,6 @@ class Index:
 
         return result
 
-
     # --------------------------------------------------------------------------- #
     def proximity_query(self, term1: str, term2: str, k: int = 1) -> List[int]:
         Postinglist1 = self.dictionary[self.termClassMapping[term1]]
@@ -125,7 +122,6 @@ class Index:
                         result.append(docID)
 
         return result
-
 
     # --------------------------------------------------------------------------- #
     @classmethod

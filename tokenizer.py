@@ -3,9 +3,17 @@ import indexer
 from typing import List, Generator, Tuple
 from configuration import *
 
+
 # --------------------------------------------------------------------------- #
 def get_token_from_line(line: str) -> List[str]:
     return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]]", line) if x != '']
+
+
+# --------------------------------------------------------------------------- #
+def exclude_abstract_beginnings(abstract) -> str:
+    for beginning in ABSTRACT_BEGINNINGS:
+        abstract = re.sub(r'^' + beginning, '', abstract, re.IGNORECASE).strip()
+    return abstract
 
 
 # --------------------------------------------------------------------------- #
@@ -43,7 +51,7 @@ def parse_doc_dump() -> None:
         ID, abstract = docContent[0], docContent[3]
 
         ID = ID.replace('MED-', '')
-        abstract = re.sub(r'^Abstract', '', abstract, re.IGNORECASE).strip()
+        abstract = exclude_abstract_beginnings(abstract)
 
         newDocument += (ID + '$$$' + abstract + '\n')
         # TODO allgemeiner, nicht von $$$ abhängig
@@ -66,9 +74,9 @@ if __name__ == '__main__':
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
-    print(i.phrase_query('capsaicin', 'contained'))
+    #print(i.phrase_query('capsaicin', 'contained'))
 
-    print(i.proximity_query('useful', 'kiwifruit', k=4))
+    #print(i.proximity_query('useful', 'kiwifruit', k=4))
 
     #print(i.merge('acrylamide-containing', 'background', operator='and'))
     #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
