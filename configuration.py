@@ -1,5 +1,7 @@
 ID_FILE = "ID.txt"
 
+JSON_FILE = "index.json"
+
 PARSE_DOC_DUMP = True
 
 WRITE_DICTIONARY_INTO_JSON = True

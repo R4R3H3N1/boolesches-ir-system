@@ -15,6 +15,8 @@ class Index:
         # TODO Sortierungsschritte (notwendig?)
         if not READ_DICTIONARY_FROM_JSON:
             self.invoke_toknizer(filename)
+        else:
+            self.from_json()
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
@@ -56,11 +58,11 @@ class Index:
         obj = {}
         for key, val in self.dictionary.items():
             obj.update({key.term:(key.occurence, val.plist)})
-        with open('index.json', 'w') as f:
+        with open(JSON_FILE, 'w') as f:
             json.dump(obj, f)
 
     # --------------------------------------------------------------------------- #
-    def from_json(self, filename: str) -> None:
+    def from_json(self) -> None:
         # // TODO implement
         pass
 
