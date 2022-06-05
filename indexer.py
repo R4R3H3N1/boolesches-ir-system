@@ -1,6 +1,7 @@
 from tokenizer import tokenize_documents
 import json
 from typing import Type, List, Set
+from configuration import *
 
 # =========================================================================== #
 class Index:
@@ -12,8 +13,8 @@ class Index:
         self.termClassMapping = {}
         self.documentIDs = set()
         # TODO Sortierungsschritte (notwendig?)
-
-        self.invoke_toknizer(filename)
+        if not READ_DICTIONARY_FROM_JSON:
+            self.invoke_toknizer(filename)
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
