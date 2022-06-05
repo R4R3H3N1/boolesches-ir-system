@@ -1,6 +1,7 @@
 import re, os, sys
 import indexer
 from typing import List, Generator, Tuple
+from configuration import *
 
 # --------------------------------------------------------------------------- #
 def get_token_from_line(line: str) -> List[str]:
@@ -54,11 +55,14 @@ def parse_doc_dump() -> None:
 
 # --------------------------------------------------------------------------- #
 if __name__ == '__main__':
-    # creates ID.txt
-    #parse_doc_dump()
+    # creates ID.txt including all doc ids and abstracts
+    if PARSE_DOC_DUMP:
+        parse_doc_dump()
 
-    i = indexer.Index('ID.txt')
-    #i.to_json()
+    i = indexer.Index(ID_FILE)
+
+    if WRITE_DICTIONARY_INTO_JSON:
+        i.to_json()
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
