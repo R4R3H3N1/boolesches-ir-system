@@ -20,6 +20,7 @@ class QueryProcessing:
             results.append(self.handle_and_clauses(and_not_clause))
 
         for i in range(len(results) - 1):
+            print("INFO: Executing AND NOT operation")
             results[i + 1] = self.index.merge_ANDNOT(results[i], results[i+1])
 
         return results[len(results) - 1]
@@ -33,6 +34,7 @@ class QueryProcessing:
             results.append(self.handle_or_clauses(and_clause))
 
         for i in range(len(results) - 1):
+            print("INFO: Executing AND operation")
             results[i+1] = self.index.merge_AND(results[i], results[i+1])
 
         return results[len(results) - 1]
@@ -46,6 +48,7 @@ class QueryProcessing:
             results.append(self.handle_low_level_clauses(or_clause))
 
         for i in range(len(results) - 1):
+            print("INFO: Executing OR operation")
             results[i + 1] = self.index.merge_OR(results[i], results[i+1])
 
         return results[len(results) - 1]
@@ -62,7 +65,8 @@ class QueryProcessing:
         return result
 
     def handle_not_clause(self, clause):
-        posting_list = self.index.dictionary[self.index.termClassMapping[clause]]
+        print("INFO: Executing OR operation on " + clause)
+        posting_list = self.index.dictionary[self.index.termClassMapping[clause.split("NOT")[1].strip()]]
         return self.index.merge_NOT(posting_list, self.index.documentIDs)
 
     def handle_term_and_prox_and_phrase_clause(self, clause):
@@ -74,9 +78,11 @@ class QueryProcessing:
             term_one = clause_split[0]
             k = int(clause_split[1].split(" ")[0].strip())
             term_two = clause_split[1].split(" ")[1].strip()
+            print("INFO: Executing proximity query on " + term_one + ", " + term_two + " and k = "  + k)
             result = self.index.proximity_query(term_one, term_two, k)
         elif self.is_phrase(clause):
             clause_split = [split.strip() for split in clause.split(" ")]
+            print("INFO: Executing phrase query on " + clause)
             if len(clause_split) == 2:
                 term_one = clause_split[0].replace("\"", "").strip()
                 term_two = clause_split[1].replace("\"", "").strip()
@@ -87,7 +93,7 @@ class QueryProcessing:
                 term_three = clause_split[2].replace("\"", "").strip()
                 result = self.index.phrase_query(term_one, term_two, term_three)
         else:
-            print(clause)
+            print("INFO: Retrieving docIDs for term: " + clause)
             result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
 
         return result
