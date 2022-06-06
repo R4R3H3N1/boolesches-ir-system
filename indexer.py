@@ -92,6 +92,7 @@ class Index:
             return self.merge_ANDNOT(Postinglist1.plist, Postinglist2.plist)
 
     # --------------------------------------------------------------------------- #
+    # TODO term3 impl
     def phrase_query(self, term1: str, term2: str, term3: str = None) -> List[int]:
         Postinglist1 = self.dictionary[self.termClassMapping[term1]]
         Postinglist2 = self.dictionary[self.termClassMapping[term2]]
