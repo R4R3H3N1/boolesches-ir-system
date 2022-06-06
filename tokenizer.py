@@ -75,8 +75,14 @@ if __name__ == '__main__':
     if WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
 
-    query = query_processing.QueryProcessing(i)
+    i.create_kgram_index()
+    print(i.find_term_alternatives('analysi'))
 
+    #query = query_processing.QueryProcessing(i)
+    #q = query.execute_query("nuclear AND factor AND kappab AND vanillin AND hela")
+    #print(q)
+
+    """
     blood_query = query.execute_query("blood")
     pressure_query = query.execute_query("pressure")
     blood_and_pressure_query = query.execute_query("blood AND pressure")
@@ -98,4 +104,6 @@ if __name__ == '__main__':
     #print(i.merge('acrylamide-containing', 'background', operator='and'))
     #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
     #print(i.merge('and', operator='not'))
+    
+    """
 

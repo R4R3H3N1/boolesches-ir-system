@@ -24,4 +24,4 @@ def levenshtein_distance(src, tgt):
             dist[row-1][col-1]+substitution(src[row-1],tgt[col-1]),
             dist[row][col-1]+insertion)
 
-    return dist[n][m]
+    return int(dist[n][m])
