@@ -12,3 +12,5 @@ ABSTRACT_BEGINNINGS = ["Abstract", "Preface", "Summary", "Short", "Synopsis", "E
 
 QUERY_EXAMPLES = ["blood", "blood AND pressure", "blood AND NOT pressure", "blood OR pressure AND cardiovascular",
                   "\"blood pressure\"", "diet \\10 health", "diet \\10 health AND \"red wine\""]
+
+R = 3

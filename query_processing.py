@@ -1,5 +1,5 @@
 import re
-
+from configuration import *
 import indexer
 
 
@@ -94,7 +94,14 @@ class QueryProcessing:
                 result = self.index.phrase_query(term_one, term_two, term_three)
         else:
             print("INFO: Retrieving docIDs for term: " + clause)
-            result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
+            try:
+                result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
+            except KeyError:
+                result = []
+
+        if len(result) <= R:
+            print("INFO: Activating Spell Checker")
+            # TODO Impl of correct spell checker
 
         return result
 
