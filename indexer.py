@@ -4,6 +4,8 @@ from typing import Type, List, Set
 from configuration import *
 from collections import Counter
 import levenshtein
+from itertools import chain
+
 
 
 # =========================================================================== #
@@ -34,7 +36,6 @@ class Index:
         except FileNotFoundError:
             print(f'error opening file {filename}')
             return
-
 
         for docID, tokens in tokenize_documents(docs):
             positionCounter = 1
@@ -81,6 +82,26 @@ class Index:
         return kgrams
 
     # --------------------------------------------------------------------------- #
+    def find_alternative_docids(self, term: str):
+        alternativeTerms = self.find_term_alternatives(term.strip())
+        chained = chain.from_iterable(
+            [self.dictionary[self.termClassMapping[term]].plist
+             for term in alternativeTerms]
+        )
+
+
+        result = sorted(list(set(chained)))
+
+        """
+        newPostinglist = Postinglist()
+        for docID in result:
+            try:
+                newPostinglist.append(docID)
+
+        return newPostinglist
+        """
+        return result
+
     def find_term_alternatives(self, term: str) -> List[str]:
         bigrams = self.kgrams(term, k=2)
         threshold = int(.7 * len(bigrams))
@@ -107,7 +128,6 @@ class Index:
 
         return sorted(r)
 
-
     # --------------------------------------------------------------------------- #
     def to_json(self) -> None:
         obj = {}
@@ -121,7 +141,7 @@ class Index:
         # // TODO implement
         pass
 
-
+    """
     # --------------------------------------------------------------------------- #
     def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
         # TODO mehrere Postinglisten
@@ -141,12 +161,29 @@ class Index:
 
         elif operator in ['and not', 'AND NOT']:
             return self.merge_ANDNOT(Postinglist1.plist, Postinglist2.plist)
+    """
 
     # --------------------------------------------------------------------------- #
-    # TODO term3 impl
+    # TODO term3 implemntieren
     def phrase_query(self, term1: str, term2: str, term3: str = None) -> List[int]:
-        Postinglist1 = self.dictionary[self.termClassMapping[term1]]
-        Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+        try:
+            Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+        except KeyError:
+            Postinglist1 = []
+        try:
+            Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+        except KeyError:
+            Postinglist2 = []
+
+        """
+        if len(Postinglist1) <= R:
+            print(f"INFO: Activating Spell Checker for {term1}")
+            Postinglist1 = self.find_alternative_docids(term1.strip())
+
+        if len(Postinglist2) <= R:
+            print(f"INFO: Activating Spell Checker for {term2}")
+            Postinglist2 = self.find_alternative_docids(term2.strip())
+        """
 
         candidates = self.merge_AND(Postinglist1, Postinglist2)
         result = []
@@ -161,8 +198,25 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     def proximity_query(self, term1: str, term2: str, k: int = 1) -> List[int]:
-        Postinglist1 = self.dictionary[self.termClassMapping[term1]]
-        Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+        try:
+            Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+        except KeyError:
+            Postinglist1 = []
+
+        try:
+            Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+        except KeyError:
+            Postinglist2 = []
+
+        """
+        if len(Postinglist1) <= R:
+            print(f"INFO: Activating Spell Checker for {term1}")
+            Postinglist1 = self.find_alternative_docids(term1.strip())
+
+        if len(Postinglist2) <= R:
+            print(f"INFO: Activating Spell Checker for {term2}")
+            Postinglist2 = self.find_alternative_docids(term2.strip())
+        """
 
         candidates = self.merge_AND(Postinglist1, Postinglist2)
         result = []
@@ -271,7 +325,7 @@ class TermIndex:
 class Postinglist:
     __slots__ = ('plist', 'seenDocIDs', 'positions', 'counts')
 
-    def __init__(self, docID: str, position: int):
+    def __init__(self, docID: int = None, position: int = None):
         # TODO array.array, numpy array oder liste?
         self.plist = []   # List of sorted DocIDs
 
@@ -281,7 +335,8 @@ class Postinglist:
         # TODO ein Objekt für alle drei?
 
         self.seenDocIDs = set()
-        self.append(docID, position)
+        if docID:
+            self.append(docID, position)
 
     def __len__(self):
         return len(self.plist)

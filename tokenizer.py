@@ -63,15 +63,17 @@ def parse_doc_dump() -> None:
 
 
 # --------------------------------------------------------------------------- #
-def input_query():
-    print("In the following one can enter a query in KNF.")
+def input_query(indexer):
+    print("In the prompt below you can enter a query in KNF.")
     print("The result will be a list of document IDs which fulfill the query.")
-    print("Queries including the OR operator should not be written in brackets.")
-    print("One can choose from the following operators (capslock important):")
+    print("Queries including the OR operator should NOT be written in brackets.")
+    print("You can choose from the following operators (capslock important):")
     print("AND, OR, NOT, \\k, \"term1 term2 (term3)\".")
     print("Currently not working are queries inside the proximity - or phrase query operators (i.e: \"(term1 \\10 term2) term3\".")
     print("Enter exit() to leave the input query.")
-    print("One can also choose from the following " + str(len(QUERY_EXAMPLES)) + " examples:")
+    print("You can also choose from the following " + str(len(QUERY_EXAMPLES)) + " examples:")
+
+    query = query_processing.QueryProcessing(indexer)
     for j in range(len(QUERY_EXAMPLES)):
         print(str(j) + ": " + QUERY_EXAMPLES[j])
     while True:
@@ -101,9 +103,9 @@ if __name__ == '__main__':
         i.to_json()
 
     i.create_kgram_index()
-    print(i.find_term_alternatives('analysi'))
+    #print(i.find_term_alternatives('analysi'))
 
-    input_query()
+    input_query(i)
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
@@ -114,6 +116,3 @@ if __name__ == '__main__':
     #print(i.merge('acrylamide-containing', 'background', operator='and'))
     #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
     #print(i.merge('and', operator='not'))
-    
-    """
-

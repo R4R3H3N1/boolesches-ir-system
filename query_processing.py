@@ -2,15 +2,15 @@ import re
 from configuration import *
 import indexer
 
-
 class QueryProcessing:
     __slots__ = ('index')
 
+    # --------------------------------------------------------------------------- #
     def __init__(self, index):
         self.index = index
 
+    # --------------------------------------------------------------------------- #
     def execute_query(self, query_string):
-
         # Split after AND NOT clauses
         and_not_clauses = [split.strip() for split in query_string.split("AND NOT")]
         results = []
@@ -25,8 +25,8 @@ class QueryProcessing:
 
         return results[len(results) - 1]
 
+    # --------------------------------------------------------------------------- #
     def handle_and_clauses(self, clause):
-
         and_clauses = [split.strip() for split in clause.split("AND")]
         results = []
 
@@ -39,6 +39,7 @@ class QueryProcessing:
 
         return results[len(results) - 1]
 
+    # --------------------------------------------------------------------------- #
     def handle_or_clauses(self, clause):
 
         or_clauses = [split.strip() for split in clause.split("OR")]
@@ -53,10 +54,8 @@ class QueryProcessing:
 
         return results[len(results) - 1]
 
+    # --------------------------------------------------------------------------- #
     def handle_low_level_clauses(self, clause):
-
-        result = []
-
         if "NOT" in clause:
             result = self.handle_not_clause(clause)
         else:
@@ -64,15 +63,14 @@ class QueryProcessing:
 
         return result
 
+    # --------------------------------------------------------------------------- #
     def handle_not_clause(self, clause):
         print("INFO: Executing OR operation on " + clause)
         posting_list = self.index.dictionary[self.index.termClassMapping[clause.split("NOT")[1].strip()]]
         return self.index.merge_NOT(posting_list, self.index.documentIDs)
 
+    # --------------------------------------------------------------------------- #
     def handle_term_and_prox_and_phrase_clause(self, clause):
-
-        result = []
-
         if self.is_proximity(clause):
             clause_split = [split.strip() for split in clause.split("\\")]
             term_one = clause_split[0]
@@ -99,12 +97,13 @@ class QueryProcessing:
             except KeyError:
                 result = []
 
-        if len(result) <= R:
-            print("INFO: Activating Spell Checker")
-            # TODO Impl of correct spell checker
+            if len(result) <= R:
+                print(f"INFO: Activating Spell Checker for {clause}")
+                result = self.index.find_alternative_docids(clause.strip())
 
         return result
 
+    # --------------------------------------------------------------------------- #
     @staticmethod
     def is_proximity(clause):
         if "\\" in clause:
@@ -112,6 +111,7 @@ class QueryProcessing:
         else:
             return False
 
+    # --------------------------------------------------------------------------- #
     @staticmethod
     def is_phrase(clause):
         if "\"" in clause:
