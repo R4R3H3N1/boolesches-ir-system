@@ -63,6 +63,31 @@ def parse_doc_dump() -> None:
 
 
 # --------------------------------------------------------------------------- #
+def input_query():
+    print("In the following one can enter a query in KNF.")
+    print("The result will be a list of document IDs which fulfill the query.")
+    print("Queries including the OR operator should not be written in brackets.")
+    print("One can choose from the following operators (capslock important):")
+    print("AND, OR, NOT, \\k, \"term1 term2 (term3)\".")
+    print("Currently not working are queries inside the proximity - or phrase query operators (i.e: \"(term1 \\10 term2) term3\".")
+    print("Enter exit() to leave the input query.")
+    print("One can also choose from the following " + str(len(QUERY_EXAMPLES)) + " examples:")
+    for j in range(len(QUERY_EXAMPLES)):
+        print(str(j) + ": " + QUERY_EXAMPLES[j])
+    while True:
+        query_string = input("Enter your Query in KNF: ")
+        for j in range(len(QUERY_EXAMPLES)):
+            if query_string == str(j):
+                query_string = QUERY_EXAMPLES[j]
+        if query_string == "exit()":
+            break
+        print("Starting Query with following KNF: " + query_string)
+        result = query.execute_query(query_string)
+        print("Result:")
+        print(result)
+
+
+# --------------------------------------------------------------------------- #
 if __name__ == '__main__':
 
     # creates ID.txt including all doc ids and abstracts
@@ -78,22 +103,7 @@ if __name__ == '__main__':
     i.create_kgram_index()
     print(i.find_term_alternatives('analysi'))
 
-    #query = query_processing.QueryProcessing(i)
-    #q = query.execute_query("nuclear AND factor AND kappab AND vanillin AND hela")
-    #print(q)
-
-    """
-    blood_query = query.execute_query("blood")
-    pressure_query = query.execute_query("pressure")
-    blood_and_pressure_query = query.execute_query("blood AND pressure")
-    print(blood_query)
-    print(pressure_query)
-    print(blood_and_pressure_query)
-    is_correct = True
-    for docId in blood_and_pressure_query:
-        if  not docId in blood_query or not docId in pressure_query:
-            is_correct = False
-    print(is_correct)
+    input_query()
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 

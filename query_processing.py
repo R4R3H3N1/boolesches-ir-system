@@ -78,7 +78,7 @@ class QueryProcessing:
             term_one = clause_split[0]
             k = int(clause_split[1].split(" ")[0].strip())
             term_two = clause_split[1].split(" ")[1].strip()
-            print("INFO: Executing proximity query on " + term_one + ", " + term_two + " and k = "  + k)
+            print("INFO: Executing proximity query on " + term_one + ", " + term_two + " and k = " + str(k))
             result = self.index.proximity_query(term_one, term_two, k)
         elif self.is_phrase(clause):
             clause_split = [split.strip() for split in clause.split(" ")]

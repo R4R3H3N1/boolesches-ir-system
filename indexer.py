@@ -154,7 +154,7 @@ class Index:
         for docID in candidates:
             for pos1 in Postinglist1.positions[docID]:
                 for pos2 in Postinglist2.positions[docID]:
-                    if pos1 == pos2 - 1:
+                    if pos1 == pos2 - 1 and docID not in result:
                         result.append(docID)
 
         return result
@@ -170,7 +170,7 @@ class Index:
         for docID in candidates:
             for pos1 in Postinglist1.positions[docID]:
                 for pos2 in Postinglist2.positions[docID]:
-                    if abs(pos1-pos2) <= k:
+                    if abs(pos1-pos2) <= k and docID not in result:
                         result.append(docID)
 
         return result
