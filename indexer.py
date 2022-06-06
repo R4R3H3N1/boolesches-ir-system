@@ -2,16 +2,19 @@ from tokenizer import tokenize_documents
 import json
 from typing import Type, List, Set
 from configuration import *
+from collections import Counter
+import levenshtein
 
 
 # =========================================================================== #
 class Index:
-    __slots__ = ('dictionary', 'termClassMapping', 'documentIDs')
+    __slots__ = ('dictionary', 'termClassMapping', 'documentIDs', 'kgramMap')
 
     def __init__(self, filename: str):
         # dict[TermIndex, Postinglist]
         self.dictionary = {}
         self.termClassMapping = {}
+        self.kgramMap = {}
         self.documentIDs = set()
         # TODO Sortierungsschritte (notwendig?)
         if not READ_DICTIONARY_FROM_JSON:
@@ -54,6 +57,57 @@ class Index:
         for key, val in self.dictionary.items():
             val.final_sort()
 
+
+    # --------------------------------------------------------------------------- #
+    def create_kgram_index(self):
+        for termindex in self.dictionary.keys():
+            kgrams = self.kgrams(termindex.term, k=2)
+            for kgram in kgrams:
+                try:
+                    self.kgramMap[kgram].append(termindex)
+                except KeyError:
+                    self.kgramMap[kgram] = [termindex]
+
+    def kgrams(self, term: str, k: int) -> List[str]:
+        kgrams = []
+        term = '$' + term ######################################
+        for i in range(0, len(term)):
+            ngram = term[i:i + k]
+            ngram += '$' * (k - len(ngram))
+            if ngram[-1] == '$':
+                kgrams.append(ngram)
+                break
+            kgrams.append(ngram)
+        return kgrams
+
+    # --------------------------------------------------------------------------- #
+    def find_term_alternatives(self, term: str) -> List[str]:
+        bigrams = self.kgrams(term, k=2)
+        threshold = int(.7 * len(bigrams))
+        terms = []
+        for bigram in bigrams:
+            try:
+                termindexList = self.kgramMap[bigram]
+            except KeyError:
+                continue
+            for termIndex in termindexList:
+                terms.append(termIndex.term)
+
+        c = Counter(terms)
+        result = []
+        for candidate, amount in c.items():
+            if amount < threshold:
+                continue
+            result.append(candidate)
+
+        r = []
+        for candiate in result:
+            if levenshtein.levenshtein_distance(term, candiate) <= 2:
+                r.append(candiate)
+
+        return sorted(r)
+
+
     # --------------------------------------------------------------------------- #
     def to_json(self) -> None:
         obj = {}
@@ -67,9 +121,6 @@ class Index:
         # // TODO implement
         pass
 
-    # --------------------------------------------------------------------------- #
-    def query(self):
-        pass
 
     # --------------------------------------------------------------------------- #
     def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
@@ -77,7 +128,7 @@ class Index:
         Postinglist1 = self.dictionary[self.termClassMapping[str1]]
         if str2:
             Postinglist2 = self.dictionary[self.termClassMapping[str2]]
-        #// TODO handling wenn nur ein String, aber Operation mit 2 Listen
+        # TODO handling wenn nur ein String, aber Operation mit 2 Listen
 
         if operator in ['and', 'AND']:
             return self.merge_AND(Postinglist1.plist, Postinglist2.plist)

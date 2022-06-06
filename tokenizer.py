@@ -100,7 +100,8 @@ if __name__ == '__main__':
     if WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
 
-    query = query_processing.QueryProcessing(i)
+    i.create_kgram_index()
+    print(i.find_term_alternatives('analysi'))
 
     input_query()
 
@@ -113,4 +114,6 @@ if __name__ == '__main__':
     #print(i.merge('acrylamide-containing', 'background', operator='and'))
     #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
     #print(i.merge('and', operator='not'))
+    
+    """
 
