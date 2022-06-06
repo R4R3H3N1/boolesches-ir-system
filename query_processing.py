@@ -6,10 +6,10 @@ import indexer
 class QueryProcessing:
     __slots__ = ('index')
 
-    def __init__(self, index: indexer.Index):
+    def __init__(self, index):
         self.index = index
 
-    def query(self, query_string):
+    def execute_query(self, query_string):
 
         # Split after AND NOT clauses
         and_not_clauses = [split.strip() for split in query_string.split("AND NOT")]
@@ -30,7 +30,7 @@ class QueryProcessing:
         results = []
 
         for and_clause in and_clauses:
-            results.append(self.handle_or_clauses(clause))
+            results.append(self.handle_or_clauses(and_clause))
 
         for i in range(len(results) - 1):
             results[i+1] = self.index.merge_AND(results[i], results[i+1])
@@ -87,19 +87,20 @@ class QueryProcessing:
                 term_three = clause_split[2].replace("\"", "").strip()
                 result = self.index.phrase_query(term_one, term_two, term_three)
         else:
-            result = self.index.dictionary[self.index.termClassMapping[clause.strip()]]
+            print(clause)
+            result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
 
         return result
 
     @staticmethod
-    def is_proximity(self, clause):
+    def is_proximity(clause):
         if "\\" in clause:
             return True
         else:
             return False
 
     @staticmethod
-    def is_phrase(self, clause):
+    def is_phrase(clause):
         if "\"" in clause:
             return True
         else:

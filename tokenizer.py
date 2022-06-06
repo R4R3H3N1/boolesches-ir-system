@@ -2,6 +2,7 @@ import re, os, sys
 import indexer
 from typing import List, Generator, Tuple
 from configuration import *
+import query_processing
 
 
 # --------------------------------------------------------------------------- #
@@ -63,14 +64,30 @@ def parse_doc_dump() -> None:
 
 # --------------------------------------------------------------------------- #
 if __name__ == '__main__':
+
     # creates ID.txt including all doc ids and abstracts
     if PARSE_DOC_DUMP:
         parse_doc_dump()
 
     i = indexer.Index(ID_FILE)
 
+    # Writes dictionary into json file such that it can be loaded next time
     if WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
+
+    query = query_processing.QueryProcessing(i)
+
+    blood_query = query.execute_query("blood")
+    pressure_query = query.execute_query("pressure")
+    blood_and_pressure_query = query.execute_query("blood AND pressure")
+    print(blood_query)
+    print(pressure_query)
+    print(blood_and_pressure_query)
+    is_correct = True
+    for docId in blood_and_pressure_query:
+        if  not docId in blood_query or not docId in pressure_query:
+            is_correct = False
+    print(is_correct)
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
