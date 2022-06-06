@@ -95,6 +95,7 @@ class QueryProcessing:
         else:
             print("INFO: Retrieving docIDs for term: " + clause)
             result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
+            # TODO Rechtschreibkorrektur hier wenn len(results) kleiner threshold?
 
         return result
 
