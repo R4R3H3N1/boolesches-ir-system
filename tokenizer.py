@@ -109,10 +109,3 @@ if __name__ == '__main__':
 
     # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 
-    #print(i.phrase_query('capsaicin', 'contained'))
-
-    #print(i.proximity_query('useful', 'kiwifruit', k=4))
-
-    #print(i.merge('acrylamide-containing', 'background', operator='and'))
-    #print(i.merge('acrylamide-containing', 'placenta', operator='or'))
-    #print(i.merge('and', operator='not'))

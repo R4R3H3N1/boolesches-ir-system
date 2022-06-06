@@ -132,13 +132,23 @@ class Index:
     def to_json(self) -> None:
         obj = {}
         for key, val in self.dictionary.items():
-            obj.update({key.term:(key.occurence, val.plist)})
+            obj.update({key.term: {'key_occurence':key.occurence,
+                                   'postinglist':val.plist,
+                                   'positions':val.positions,
+                                   'counts':val.counts}
+                        })
         with open(JSON_FILE, 'w') as f:
             json.dump(obj, f)
 
     # --------------------------------------------------------------------------- #
     def from_json(self) -> None:
-        # // TODO implement
+        """
+        with open('index.json', 'r', encoding='utf8') as f:
+            readIndex = json.load(f)
+        a = 1
+        for term, indexinfo in readIndex.items():
+            pass
+        """
         pass
 
     """
