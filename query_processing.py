@@ -19,6 +19,11 @@ class QueryProcessing:
         for and_not_clause in and_not_clauses:
             results.append(self.handle_and_clauses(and_not_clause))
 
+        for i in range(len(results) - 1):
+            results[i + 1] = self.index.merge_ANDNOT(results[i], results[i+1])
+
+        return results[len(results) - 1]
+
     def handle_and_clauses(self, clause):
 
         and_clauses = [split.strip() for split in clause.split("AND")]
@@ -39,6 +44,9 @@ class QueryProcessing:
 
         for or_clause in or_clauses:
             results.append(self.handle_low_level_clauses(or_clause))
+
+        for i in range(len(results) - 1):
+            results[i + 1] = self.index.merge_OR(results[i], results[i+1])
 
         return results[len(results) - 1]
 
@@ -96,4 +104,3 @@ class QueryProcessing:
             return True
         else:
             return False
-        
