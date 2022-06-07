@@ -7,7 +7,7 @@ import query_processing
 
 # --------------------------------------------------------------------------- #
 def get_token_from_line(line: str) -> List[str]:
-    return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]]", line) if x != '']
+    return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]|\“]", line) if x != '']
 
 
 # --------------------------------------------------------------------------- #
@@ -87,25 +87,4 @@ def input_query(indexer):
         result = query.execute_query(query_string)
         print("Result:")
         print(result.plist)
-
-
-# --------------------------------------------------------------------------- #
-if __name__ == '__main__':
-
-    # creates ID.txt including all doc ids and abstracts
-    if configuration.PARSE_DOC_DUMP:
-        parse_doc_dump()
-
-    i = indexer.Index(configuration.ID_FILE)
-
-    # Writes dictionary into json file such that it can be loaded next time
-    if configuration.WRITE_DICTIONARY_INTO_JSON:
-        i.to_json()
-
-    i.create_kgram_index()
-    #print(i.find_term_alternatives('analysi'))
-
-    input_query(i)
-
-    # TODO Optimierungen, z.B. mit seltenstem Term beginnen
 

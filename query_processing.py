@@ -106,7 +106,7 @@ class QueryProcessing:
             except KeyError:
                 result = []
 
-            if len(result) <= configuration.R:
+            if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
                 print(f"INFO: Activating Spell Checker for {clause}")
                 result = self.index.find_alternative_docids(clause.strip())
 

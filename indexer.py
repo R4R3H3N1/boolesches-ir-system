@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import time
+
 from tokenizer import tokenize_documents
 import json
 from typing import Type, List, Set
@@ -19,9 +22,25 @@ class Index:
         self.documentIDs = set()
         # TODO Sortierungsschritte (notwendig?)
         if not configuration.READ_DICTIONARY_FROM_JSON:
+            print("Started creating index")
+            start = time.time()
             self.invoke_toknizer(filename)
+            print(f"Creating index took {time.time() - start} seconds.")
+            if configuration.KGRAM_INDEX_ENABLED:
+                print("Started creating kgram-index")
+                start = time.time()
+                self.create_kgram_index()
+                print(f"Creating kgram-index took {time.time() - start} seconds.")
         else:
+            print("Started creating index from JSON file")
+            start = time.time()
             self.from_json()
+            print(f"Creating index took {time.time() - start} seconds.")
+            if configuration.KGRAM_INDEX_ENABLED:
+                print("Started creating kgram-index")
+                start = time.time()
+                self.create_kgram_index()
+                print(f"Creating kgram-index took {time.time() - start} seconds.")
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
@@ -33,7 +52,7 @@ class Index:
                 file = f.read()
                 docs = file.split('\n')
         except FileNotFoundError:
-            print(f'error opening file {filename}')
+            print(f'ERROR: file {filename} not found')
             return
 
         for docID, tokens in tokenize_documents(docs):
@@ -77,6 +96,7 @@ class Index:
     # --------------------------------------------------------------------------- #
     def find_alternative_docids(self, term: str) -> Postinglist:
         alternative_terms = self.find_term_alternatives(term.strip())
+        print(f"Spell checker found the following alternative terms: {alternative_terms}.")
         result = Postinglist()
 
         for alternative_term in alternative_terms:
