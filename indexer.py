@@ -1,4 +1,4 @@
-import indexer
+from __future__ import annotations
 from tokenizer import tokenize_documents
 import json
 from typing import Type, List, Set
@@ -6,7 +6,6 @@ from configuration import *
 import levenshtein
 from itertools import chain
 from jaccard_index import jaccard_index
-
 
 
 # =========================================================================== #
@@ -164,15 +163,15 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     # TODO term3 implemntieren
-    def phrase_query(self, term1: str, term2: str, term3: str = None) -> List[int]:
+    def phrase_query(self, term1: str, term2: str, term3: str = None) -> Postinglist:
         try:
-            Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+            posting_list1 = self.dictionary[self.termClassMapping[term1]]
         except KeyError:
-            Postinglist1 = []
+            posting_list1 = Postinglist()
         try:
-            Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+            posting_list2 = self.dictionary[self.termClassMapping[term2]]
         except KeyError:
-            Postinglist2 = []
+            posting_list2 = Postinglist()
 
         """
         if len(Postinglist1) <= R:
@@ -184,28 +183,28 @@ class Index:
             Postinglist2 = self.find_alternative_docids(term2.strip())
         """
 
-        candidates = self.merge_AND(Postinglist1, Postinglist2)
-        result = []
+        candidates = self.merge_AND(posting_list1, posting_list2)
+        result = Postinglist()
 
         for docID in candidates:
-            for pos1 in Postinglist1.positions[docID]:
-                for pos2 in Postinglist2.positions[docID]:
+            for pos1 in posting_list1.positions[docID]:
+                for pos2 in posting_list2.positions[docID]:
                     if pos1 == pos2 - 1 and docID not in result:
-                        result.append(docID)
+                        result.append(docID, -1)
 
         return result
 
     # --------------------------------------------------------------------------- #
-    def proximity_query(self, term1: str, term2: str, k: int = 1) -> List[int]:
+    def proximity_query(self, term1: str, term2: str, k: int = 1) -> Postinglist:
         try:
-            Postinglist1 = self.dictionary[self.termClassMapping[term1]]
+            posting_list1 = self.dictionary[self.termClassMapping[term1]]
         except KeyError:
-            Postinglist1 = []
+            posting_list1 = Postinglist()
 
         try:
-            Postinglist2 = self.dictionary[self.termClassMapping[term2]]
+            posting_list2 = self.dictionary[self.termClassMapping[term2]]
         except KeyError:
-            Postinglist2 = []
+            posting_list2 = Postinglist()
 
         """
         if len(Postinglist1) <= R:
@@ -217,26 +216,26 @@ class Index:
             Postinglist2 = self.find_alternative_docids(term2.strip())
         """
 
-        candidates = self.merge_AND(Postinglist1, Postinglist2)
-        result = []
+        candidates = self.merge_AND(posting_list1, posting_list2)
+        result = Postinglist()
 
         for docID in candidates:
-            for pos1 in Postinglist1.positions[docID]:
-                for pos2 in Postinglist2.positions[docID]:
+            for pos1 in posting_list1.positions[docID]:
+                for pos2 in posting_list2.positions[docID]:
                     if abs(pos1-pos2) <= k and docID not in result:
-                        result.append(docID)
+                        result.append(docID, -1)
 
         return result
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def merge_AND(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist) -> indexer.Postinglist:
+    def merge_AND(posting_list1: Postinglist, posting_list2: Postinglist) -> Postinglist:
         i, j = 0, 0
         result = Postinglist()
 
         while i < len(posting_list1.plist) and j < len(posting_list2.plist):
             if posting_list1.plist[i] == posting_list2.plist[j]:
-                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
+                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
                               posting_list2.positions[posting_list2.plist[j]])
                 i += 1
                 j += 1
@@ -249,34 +248,34 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def merge_OR(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist) -> indexer.Postinglist:
+    def merge_OR(posting_list1: Postinglist, posting_list2: Postinglist) -> Postinglist:
         result = Postinglist()
         i, j = 0, 0
         while i < len(posting_list1.plist) and j < len(posting_list2.plist):
             if posting_list1.plist[i] == posting_list2.plist[j]:
-                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
+                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
                               posting_list2.positions[posting_list2.plist[j]])
                 i += 1
                 j += 1
             elif posting_list1.plist[i] < posting_list2.plist[j]:
-                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
                 i += 1
             elif posting_list1.plist[i] > posting_list2.plist[j]:
-                result.append(posting_list2.plist[j], posting_list2.positions[posting_list2.plist[j]])
+                result.append_list_pos(posting_list2.plist[j], posting_list2.positions[posting_list2.plist[j]])
                 j += 1
 
         if i != len(posting_list1.plist):
             for x in range(i, len(posting_list1.plist)):
-                result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
+                result.append_list_pos(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
         if j != len(posting_list2.plist):
             for x in range(j, len(posting_list2.plist)):
-                result.append(posting_list2.plist[x], posting_list2.positions[posting_list2.plist[x]])
+                result.append_list_pos(posting_list2.plist[x], posting_list2.positions[posting_list2.plist[x]])
 
         return result
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def merge_NOT(posting_list1: indexer.Postinglist, docIDSet: Set[int]) -> indexer.Postinglist:
+    def merge_NOT(posting_list1: Postinglist, docIDSet: Set[int]) -> Postinglist:
         result = Postinglist()
 
         pl1set = set(posting_list1.plist)
@@ -289,7 +288,7 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def merge_ANDNOT(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist) -> indexer.Postinglist:
+    def merge_ANDNOT(posting_list1: Postinglist, posting_list2: Postinglist) -> Postinglist:
         result = Postinglist()
         i = 0
         j = 0
@@ -298,14 +297,14 @@ class Index:
                 i += 1
                 j += 1
             elif posting_list1.plist[i] < posting_list2.plist[j]:
-                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
                 i += 1
             elif posting_list1.plist[i] > posting_list2.plist[j]:
                 j += 1
 
         if i != len(posting_list1.plist):
             for x in range(i, len(posting_list1.plist)):
-                result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
+                result.append_list_pos(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
 
         return result
 
@@ -363,7 +362,7 @@ class Postinglist:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
 
-    def append(self, docID: str, positions: List[int]) -> None:
+    def append_list_pos(self, docID: str, positions: List[int]) -> None:
         # TODO wenn in verschiedenen Objekten, dann in Funktionen aufspalten
         try:
             self.positions[docID] += positions

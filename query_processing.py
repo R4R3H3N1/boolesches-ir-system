@@ -1,3 +1,4 @@
+from __future__ import annotations
 import indexer
 from configuration import *
 
@@ -101,12 +102,12 @@ class QueryProcessing:
         else:
             print("INFO: Retrieving docIDs for term: " + clause)
             try:
-                result = self.index.dictionary[self.index.termClassMapping[clause.strip()]].plist
+                result = self.index.dictionary[self.index.termClassMapping[clause.strip()]]
             except KeyError:
                 result = []
 
             if len(result) <= R:
-                print(f"INFO: Activating Spell Checker for {clause}")
+                print("INFO: Activating Spell Checker for {clause}")
                 result = self.index.find_alternative_docids(clause.strip())
 
         return result
