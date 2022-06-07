@@ -2,9 +2,8 @@ from __future__ import annotations
 from tokenizer import tokenize_documents
 import json
 from typing import Type, List, Set
-from configuration import *
+import configuration
 import levenshtein
-from itertools import chain
 from jaccard_index import jaccard_index
 
 
@@ -19,7 +18,7 @@ class Index:
         self.kgramMap = {}
         self.documentIDs = set()
         # TODO Sortierungsschritte (notwendig?)
-        if not READ_DICTIONARY_FROM_JSON:
+        if not configuration.READ_DICTIONARY_FROM_JSON:
             self.invoke_toknizer(filename)
         else:
             self.from_json()
@@ -61,7 +60,7 @@ class Index:
     # --------------------------------------------------------------------------- #
     def create_kgram_index(self):
         for termindex in self.dictionary.keys():
-            kgrams = self.kgrams(termindex.term, k=K)
+            kgrams = self.kgrams(termindex.term, k=configuration.K)
             for kgram in kgrams:
                 try:
                     if termindex not in self.kgramMap[kgram]:
@@ -76,21 +75,20 @@ class Index:
         return kgrams
 
     # --------------------------------------------------------------------------- #
-    def find_alternative_docids(self, term: str):
-        alternativeTerms = self.find_term_alternatives(term.strip())
-        chained = chain.from_iterable(
-            [self.dictionary[self.termClassMapping[term]].plist
-             for term in alternativeTerms]
-        )
+    def find_alternative_docids(self, term: str) -> Postinglist:
+        alternative_terms = self.find_term_alternatives(term.strip())
+        result = Postinglist()
 
+        for alternative_term in alternative_terms:
+            posting_list = self.dictionary[self.termClassMapping[alternative_term]]
+            for doc_id in posting_list.plist:
+                result.append(doc_id, posting_list.positions[doc_id])
 
-        result = sorted(list(set(chained)))
-
-
+        result.final_sort()
         return result
 
     def find_term_alternatives(self, term: str) -> List[str]:
-        term_kgrams = self.kgrams(term, k=K)
+        term_kgrams = self.kgrams(term, k=configuration.K)
         threshold = int(.7 * len(term_kgrams))
         candidate_terms = []
         for kgram in term_kgrams:
@@ -104,14 +102,14 @@ class Index:
         # Filter with Jaccard Index
         candidates_after_jaccard = []
         for candidate_term in candidate_terms:
-            candidate_kgrams = self.kgrams(candidate_term, K)
-            if jaccard_index(term_kgrams, candidate_kgrams) >= J:
+            candidate_kgrams = self.kgrams(candidate_term, configuration.K)
+            if jaccard_index(term_kgrams, candidate_kgrams) >= configuration.J:
                 candidates_after_jaccard.append(candidate_term)
 
         # Filter candidates again after Levenshtein Distance
         candidates_after_levenshtein = []
         for candidate_term in candidates_after_jaccard:
-            if levenshtein.levenshtein_distance(term, candidate_term) <= MAX_LEVENSHTEIN_DISTANCE:
+            if levenshtein.levenshtein_distance(term, candidate_term) <= configuration.MAX_LEVENSHTEIN_DISTANCE:
                 candidates_after_levenshtein.append(candidate_term)
 
         return candidates_after_levenshtein
@@ -125,7 +123,7 @@ class Index:
                                    'positions':val.positions,
                                    'counts':val.counts}
                         })
-        with open(JSON_FILE, 'w') as f:
+        with open(configuration.JSON_FILE, 'w') as f:
             json.dump(obj, f)
 
     # --------------------------------------------------------------------------- #

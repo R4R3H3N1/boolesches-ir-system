@@ -1,7 +1,7 @@
 import re, os, sys
 import indexer
 from typing import List, Generator, Tuple
-from configuration import *
+import configuration
 import query_processing
 
 
@@ -12,7 +12,7 @@ def get_token_from_line(line: str) -> List[str]:
 
 # --------------------------------------------------------------------------- #
 def exclude_abstract_beginnings(abstract) -> str:
-    for beginning in ABSTRACT_BEGINNINGS:
+    for beginning in configuration.ABSTRACT_BEGINNINGS:
         abstract = re.sub(r'^' + beginning, '', abstract, re.IGNORECASE).strip()
     return abstract
 
@@ -71,16 +71,16 @@ def input_query(indexer):
     print("AND, OR, NOT, \\k, \"term1 term2 (term3)\".")
     print("Currently not working are queries inside the proximity - or phrase query operators (i.e: \"(term1 \\10 term2) term3\".")
     print("Enter exit() to leave the input query.")
-    print("You can also choose from the following " + str(len(QUERY_EXAMPLES)) + " examples:")
+    print("You can also choose from the following " + str(len(configuration.QUERY_EXAMPLES)) + " examples:")
 
     query = query_processing.QueryProcessing(indexer)
-    for j in range(len(QUERY_EXAMPLES)):
-        print(str(j) + ": " + QUERY_EXAMPLES[j])
+    for j in range(len(configuration.QUERY_EXAMPLES)):
+        print(str(j) + ": " + configuration.QUERY_EXAMPLES[j])
     while True:
         query_string = input("Enter your Query in KNF: ")
-        for j in range(len(QUERY_EXAMPLES)):
+        for j in range(len(configuration.QUERY_EXAMPLES)):
             if query_string == str(j):
-                query_string = QUERY_EXAMPLES[j]
+                query_string = configuration.QUERY_EXAMPLES[j]
         if query_string == "exit()":
             break
         print("Starting Query with following KNF: " + query_string)
@@ -93,13 +93,13 @@ def input_query(indexer):
 if __name__ == '__main__':
 
     # creates ID.txt including all doc ids and abstracts
-    if PARSE_DOC_DUMP:
+    if configuration.PARSE_DOC_DUMP:
         parse_doc_dump()
 
-    i = indexer.Index(ID_FILE)
+    i = indexer.Index(configuration.ID_FILE)
 
     # Writes dictionary into json file such that it can be loaded next time
-    if WRITE_DICTIONARY_INTO_JSON:
+    if configuration.WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
 
     i.create_kgram_index()

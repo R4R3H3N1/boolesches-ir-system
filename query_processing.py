@@ -1,6 +1,6 @@
 from __future__ import annotations
 import indexer
-from configuration import *
+import configuration
 
 
 class QueryProcessing:
@@ -106,7 +106,7 @@ class QueryProcessing:
             except KeyError:
                 result = []
 
-            if len(result) <= R:
+            if len(result) <= configuration.R:
                 print("INFO: Activating Spell Checker for {clause}")
                 result = self.index.find_alternative_docids(clause.strip())
 
