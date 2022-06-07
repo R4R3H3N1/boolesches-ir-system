@@ -83,32 +83,56 @@ class QueryProcessing:
         if self.is_proximity(clause):
             clause_split = [split.strip() for split in clause.split("\\")]
             term_one = clause_split[0]
-            k = int(clause_split[1].split(" ")[0].strip())
             term_two = clause_split[1].split(" ")[1].strip()
+            posting_list_one = self.get_posting_list_to_term(term_one)
+            posting_list_two = self.get_posting_list_to_term(term_two)
+            k = int(clause_split[1].split(" ")[0].strip())
+
             print(f"INFO: Executing proximity query on {term_one}, {term_two} and k = {str(k)}")
-            result = self.index.proximity_query(term_one, term_two, k)
+            result = self.index.proximity_query(posting_list_one, posting_list_two, k)
+
         elif self.is_phrase(clause):
+
             clause_split = [split.strip() for split in clause.split(" ")]
-            print(f"INFO: Executing phrase query on {clause}")
+
             if len(clause_split) == 2:
                 term_one = clause_split[0].replace("\"", "").strip()
                 term_two = clause_split[1].replace("\"", "").strip()
-                result = self.index.phrase_query(term_one, term_two)
+
+                posting_list1 = self.get_posting_list_to_term(term_one)
+                posting_list2 = self.get_posting_list_to_term(term_two)
+
+                print(f"INFO: Executing phrase query on {clause}")
+                result = self.index.phrase_query(posting_list1, posting_list2)
+
             else:
                 term_one = clause_split[0].replace("\"", "").strip()
                 term_two = clause_split[1].strip()
                 term_three = clause_split[2].replace("\"", "").strip()
-                result = self.index.phrase_query(term_one, term_two, term_three)
-        else:
-            print(f"INFO: Retrieving docIDs for term: {clause}")
-            try:
-                result = self.index.dictionary[self.index.termClassMapping[clause.strip()]]
-            except KeyError:
-                result = []
 
-            if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
-                print(f"INFO: Activating Spell Checker for {clause}")
-                result = self.index.find_alternative_docids(clause.strip())
+                posting_list1 = self.get_posting_list_to_term(term_one)
+                posting_list2 = self.get_posting_list_to_term(term_two)
+                posting_list3 = self.get_posting_list_to_term(term_three)
+
+                print(f"INFO: Executing phrase query on {clause}")
+                result = self.index.phrase_query(posting_list1, posting_list2, posting_list3)
+        else:
+            result = self.get_posting_list_to_term(term=clause)
+
+        return result
+
+    # --------------------------------------------------------------------------- #
+    def get_posting_list_to_term(self, term) -> indexer.Postinglist:
+        print(f"INFO: Retrieving Postinglist for term: {term}")
+        result = indexer.Postinglist()
+        try:
+            result = self.index.dictionary[self.index.termClassMapping[term.strip()]]
+        except KeyError:
+            result = indexer.Postinglist()
+
+        if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
+            print(f"INFO: Activating Spell Checker for {term}")
+            result = self.index.find_alternative_docids(term.strip())
 
         return result
 

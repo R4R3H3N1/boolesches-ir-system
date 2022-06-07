@@ -181,25 +181,8 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     # TODO term3 implemntieren
-    def phrase_query(self, term1: str, term2: str, term3: str = None) -> Postinglist:
-        try:
-            posting_list1 = self.dictionary[self.termClassMapping[term1]]
-        except KeyError:
-            posting_list1 = Postinglist()
-        try:
-            posting_list2 = self.dictionary[self.termClassMapping[term2]]
-        except KeyError:
-            posting_list2 = Postinglist()
-
-        """
-        if len(Postinglist1) <= R:
-            print(f"INFO: Activating Spell Checker for {term1}")
-            Postinglist1 = self.find_alternative_docids(term1.strip())
-
-        if len(Postinglist2) <= R:
-            print(f"INFO: Activating Spell Checker for {term2}")
-            Postinglist2 = self.find_alternative_docids(term2.strip())
-        """
+    def phrase_query(self, posting_list1: Postinglist, posting_list2: Postinglist,
+                     posting_list3: Postinglist = None) -> Postinglist:
 
         candidates = self.merge_AND(posting_list1, posting_list2)
         result = Postinglist()
@@ -213,26 +196,7 @@ class Index:
         return result
 
     # --------------------------------------------------------------------------- #
-    def proximity_query(self, term1: str, term2: str, k: int = 1) -> Postinglist:
-        try:
-            posting_list1 = self.dictionary[self.termClassMapping[term1]]
-        except KeyError:
-            posting_list1 = Postinglist()
-
-        try:
-            posting_list2 = self.dictionary[self.termClassMapping[term2]]
-        except KeyError:
-            posting_list2 = Postinglist()
-
-        """
-        if len(Postinglist1) <= R:
-            print(f"INFO: Activating Spell Checker for {term1}")
-            Postinglist1 = self.find_alternative_docids(term1.strip())
-
-        if len(Postinglist2) <= R:
-            print(f"INFO: Activating Spell Checker for {term2}")
-            Postinglist2 = self.find_alternative_docids(term2.strip())
-        """
+    def proximity_query(self, posting_list1: Postinglist, posting_list2: Postinglist, k: int = 1) -> Postinglist:
 
         candidates = self.merge_AND(posting_list1, posting_list2)
         result = Postinglist()
