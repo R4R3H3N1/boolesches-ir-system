@@ -184,14 +184,25 @@ class Index:
     def phrase_query(self, posting_list1: Postinglist, posting_list2: Postinglist,
                      posting_list3: Postinglist = None) -> Postinglist:
 
-        candidates = self.merge_AND(posting_list1, posting_list2)
         result = Postinglist()
 
-        for docID in candidates:
-            for pos1 in posting_list1.positions[docID]:
-                for pos2 in posting_list2.positions[docID]:
-                    if pos1 == pos2 - 1 and docID not in result:
-                        result.append(docID, -1)
+        if posting_list3 is None:
+            candidates = self.merge_AND(posting_list1, posting_list2)
+
+            for docID in candidates:
+                for pos1 in posting_list1.positions[docID]:
+                    for pos2 in posting_list2.positions[docID]:
+                        if pos1 == pos2 - 1 and docID not in result:
+                            result.append(docID, -1)
+        else:
+            candidates = self.merge_AND(self.merge_AND(posting_list1, posting_list2), posting_list3)
+
+            for docID in candidates:
+                for pos1 in posting_list1.positions[docID]:
+                    for pos2 in posting_list2.positions[docID]:
+                        for pos3 in posting_list3.positions[docID]:
+                            if pos1 == pos2 - 1 and pos2 == pos3 - 1 and docID not in result:
+                                result.append(docID, -1)
 
         return result
 
