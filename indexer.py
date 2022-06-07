@@ -180,7 +180,6 @@ class Index:
     """
 
     # --------------------------------------------------------------------------- #
-    # TODO term3 implemntieren
     def phrase_query(self, posting_list1: Postinglist, posting_list2: Postinglist,
                      posting_list3: Postinglist = None) -> Postinglist:
 
