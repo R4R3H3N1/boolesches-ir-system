@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import time
+
 import indexer
 import configuration
 
@@ -132,7 +135,9 @@ class QueryProcessing:
 
         if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
             print(f"INFO: Activating Spell Checker for {term}")
+            start = time.time()
             result = self.index.find_alternative_docids(term.strip())
+            print(f"INFO: Spell checker took {time.time() - start} seconds.")
 
         return result
 

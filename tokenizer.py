@@ -62,29 +62,3 @@ def parse_doc_dump() -> None:
         f.write(newDocument)
 
 
-# --------------------------------------------------------------------------- #
-def input_query(indexer):
-    print("In the prompt below you can enter a query in KNF.")
-    print("The result will be a list of document IDs which fulfill the query.")
-    print("Queries including the OR operator should NOT be written in brackets.")
-    print("You can choose from the following operators (capslock important):")
-    print("AND, OR, NOT, \\k, \"term1 term2 (term3)\".")
-    print("Currently not working are queries inside the proximity - or phrase query operators (i.e: \"(term1 \\10 term2) term3\".")
-    print("Enter exit() to leave the input query.")
-    print("You can also choose from the following " + str(len(configuration.QUERY_EXAMPLES)) + " examples:")
-
-    query = query_processing.QueryProcessing(indexer)
-    for j in range(len(configuration.QUERY_EXAMPLES)):
-        print(str(j) + ": " + configuration.QUERY_EXAMPLES[j])
-    while True:
-        query_string = input("Enter your Query in KNF: ")
-        for j in range(len(configuration.QUERY_EXAMPLES)):
-            if query_string == str(j):
-                query_string = configuration.QUERY_EXAMPLES[j]
-        if query_string == "exit()":
-            break
-        print("Starting Query with following KNF: " + query_string)
-        result = query.execute_query(query_string)
-        print("Result:")
-        print(result.plist)
-
