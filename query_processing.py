@@ -74,7 +74,7 @@ class QueryProcessing:
 
     # --------------------------------------------------------------------------- #
     def handle_not_clause(self, clause: str) -> indexer.Postinglist:
-        print("INFO: Executing OR operation on " + clause)
+        print(f"INFO: Executing OR operation on {clause}")
         posting_list = self.index.dictionary[self.index.termClassMapping[clause.split("NOT")[1].strip()]]
         return self.index.merge_NOT(posting_list, self.index.documentIDs)
 
@@ -85,11 +85,11 @@ class QueryProcessing:
             term_one = clause_split[0]
             k = int(clause_split[1].split(" ")[0].strip())
             term_two = clause_split[1].split(" ")[1].strip()
-            print("INFO: Executing proximity query on " + term_one + ", " + term_two + " and k = " + str(k))
+            print(f"INFO: Executing proximity query on {term_one}, {term_two} and k = {str(k)}")
             result = self.index.proximity_query(term_one, term_two, k)
         elif self.is_phrase(clause):
             clause_split = [split.strip() for split in clause.split(" ")]
-            print("INFO: Executing phrase query on " + clause)
+            print(f"INFO: Executing phrase query on {clause}")
             if len(clause_split) == 2:
                 term_one = clause_split[0].replace("\"", "").strip()
                 term_two = clause_split[1].replace("\"", "").strip()
@@ -100,14 +100,14 @@ class QueryProcessing:
                 term_three = clause_split[2].replace("\"", "").strip()
                 result = self.index.phrase_query(term_one, term_two, term_three)
         else:
-            print("INFO: Retrieving docIDs for term: " + clause)
+            print(f"INFO: Retrieving docIDs for term: {clause}")
             try:
                 result = self.index.dictionary[self.index.termClassMapping[clause.strip()]]
             except KeyError:
                 result = []
 
             if len(result) <= configuration.R:
-                print("INFO: Activating Spell Checker for {clause}")
+                print(f"INFO: Activating Spell Checker for {clause}")
                 result = self.index.find_alternative_docids(clause.strip())
 
         return result
