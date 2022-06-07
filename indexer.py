@@ -58,27 +58,21 @@ class Index:
         for key, val in self.dictionary.items():
             val.final_sort()
 
-
     # --------------------------------------------------------------------------- #
     def create_kgram_index(self):
         for termindex in self.dictionary.keys():
-            kgrams = self.kgrams(termindex.term, k=2)
+            kgrams = self.kgrams(termindex.term, k=K)
             for kgram in kgrams:
                 try:
-                    self.kgramMap[kgram].append(termindex)
+                    if termindex not in self.kgramMap[kgram]:
+                        self.kgramMap[kgram].append(termindex)
                 except KeyError:
                     self.kgramMap[kgram] = [termindex]
 
     def kgrams(self, term: str, k: int) -> List[str]:
         kgrams = []
-        term = '$' + term ######################################
-        for i in range(0, len(term)):
-            ngram = term[i:i + k]
-            ngram += '$' * (k - len(ngram))
-            if ngram[-1] == '$':
-                kgrams.append(ngram)
-                break
-            kgrams.append(ngram)
+        for i in range(len(term) - k + 1):
+            kgrams.append(term[i:i + k])
         return kgrams
 
     # --------------------------------------------------------------------------- #

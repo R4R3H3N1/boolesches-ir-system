@@ -4,7 +4,7 @@ JSON_FILE = "index.json"
 
 PARSE_DOC_DUMP = True
 
-WRITE_DICTIONARY_INTO_JSON = False
+WRITE_DICTIONARY_INTO_JSON = True
 
 READ_DICTIONARY_FROM_JSON = False
 
@@ -14,3 +14,4 @@ QUERY_EXAMPLES = ["blood", "blood AND pressure", "blood AND NOT pressure", "bloo
                   "\"blood pressure\"", "diet \\10 health", "diet \\10 health AND \"red wine\""]
 
 R = 3
+K = 3
