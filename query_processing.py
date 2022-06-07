@@ -1,6 +1,6 @@
-import re
-from configuration import *
 import indexer
+from configuration import *
+
 
 class QueryProcessing:
     __slots__ = ('index')
@@ -10,7 +10,7 @@ class QueryProcessing:
         self.index = index
 
     # --------------------------------------------------------------------------- #
-    def execute_query(self, query_string):
+    def execute_query(self, query_string: str) -> indexer.Postinglist:
         # Split after AND NOT clauses
         and_not_clauses = [split.strip() for split in query_string.split("AND NOT")]
         results = []
@@ -19,6 +19,7 @@ class QueryProcessing:
         for and_not_clause in and_not_clauses:
             results.append(self.handle_and_clauses(and_not_clause))
 
+        # Execute all AND NOT clauses
         for i in range(len(results) - 1):
             print("INFO: Executing AND NOT operation")
             results[i + 1] = self.index.merge_ANDNOT(results[i], results[i+1])
@@ -26,13 +27,16 @@ class QueryProcessing:
         return results[len(results) - 1]
 
     # --------------------------------------------------------------------------- #
-    def handle_and_clauses(self, clause):
+    def handle_and_clauses(self, clause: str) -> indexer.Postinglist:
+        # Split after AND clauses
         and_clauses = [split.strip() for split in clause.split("AND")]
         results = []
 
+        # Handle OR clauses inside the AND clauses
         for and_clause in and_clauses:
             results.append(self.handle_or_clauses(and_clause))
 
+        # Execute all AND clauses
         for i in range(len(results) - 1):
             print("INFO: Executing AND operation")
             results[i+1] = self.index.merge_AND(results[i], results[i+1])
@@ -40,14 +44,17 @@ class QueryProcessing:
         return results[len(results) - 1]
 
     # --------------------------------------------------------------------------- #
-    def handle_or_clauses(self, clause):
+    def handle_or_clauses(self, clause: str) -> indexer.Postinglist:
 
+        # Split after all OR clauses
         or_clauses = [split.strip() for split in clause.split("OR")]
         results = []
 
+        # Handle all low level clauses
         for or_clause in or_clauses:
             results.append(self.handle_low_level_clauses(or_clause))
 
+        # Execute all OR clauses
         for i in range(len(results) - 1):
             print("INFO: Executing OR operation")
             results[i + 1] = self.index.merge_OR(results[i], results[i+1])
@@ -55,7 +62,8 @@ class QueryProcessing:
         return results[len(results) - 1]
 
     # --------------------------------------------------------------------------- #
-    def handle_low_level_clauses(self, clause):
+    def handle_low_level_clauses(self, clause: str) -> indexer.Postinglist:
+
         if "NOT" in clause:
             result = self.handle_not_clause(clause)
         else:
@@ -64,13 +72,13 @@ class QueryProcessing:
         return result
 
     # --------------------------------------------------------------------------- #
-    def handle_not_clause(self, clause):
+    def handle_not_clause(self, clause: str) -> indexer.Postinglist:
         print("INFO: Executing OR operation on " + clause)
         posting_list = self.index.dictionary[self.index.termClassMapping[clause.split("NOT")[1].strip()]]
         return self.index.merge_NOT(posting_list, self.index.documentIDs)
 
     # --------------------------------------------------------------------------- #
-    def handle_term_and_prox_and_phrase_clause(self, clause):
+    def handle_term_and_prox_and_phrase_clause(self, clause: str) -> indexer.Postinglist:
         if self.is_proximity(clause):
             clause_split = [split.strip() for split in clause.split("\\")]
             term_one = clause_split[0]
@@ -105,7 +113,7 @@ class QueryProcessing:
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def is_proximity(clause):
+    def is_proximity(clause: str) -> bool:
         if "\\" in clause:
             return True
         else:
@@ -113,7 +121,7 @@ class QueryProcessing:
 
     # --------------------------------------------------------------------------- #
     @staticmethod
-    def is_phrase(clause):
+    def is_phrase(clause: str) -> bool:
         if "\"" in clause:
             return True
         else:

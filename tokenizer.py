@@ -86,7 +86,7 @@ def input_query(indexer):
         print("Starting Query with following KNF: " + query_string)
         result = query.execute_query(query_string)
         print("Result:")
-        print(result)
+        print(result.plist)
 
 
 # --------------------------------------------------------------------------- #
