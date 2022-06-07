@@ -17,7 +17,7 @@ def input_query(indexer):
     print("Enter exit() to leave the input query.")
     print("You can also choose from the following " + str(len(configuration.QUERY_EXAMPLES)) + " examples:")
 
-    query = query_processing.QueryProcessing(indexer)
+    query = QueryProcessing(indexer)
     for j in range(len(configuration.QUERY_EXAMPLES)):
         print(str(j) + ": " + configuration.QUERY_EXAMPLES[j])
     while True:

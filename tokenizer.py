@@ -1,8 +1,8 @@
-import re, os, sys
-import indexer
+import os
+import re
 from typing import List, Generator, Tuple
+
 import configuration
-import query_processing
 
 
 # --------------------------------------------------------------------------- #
