@@ -44,8 +44,8 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
-        # TODO skip-pointer
-        # TODO nur Differenz der DocIDs speichern
+        # TODO skip-pointer (see below)
+        # TODO nur Differenz der DocIDs speichern (Glaube nicht nötig da eh alles in den Hauptspeicher passt)
 
         try:
             with open(filename, 'r', encoding='utf8') as f:
@@ -323,7 +323,7 @@ class Postinglist:
         self.plist = []   # List of sorted DocIDs
 
         self.positions = {}  # map docID:positions within docID
-        self.counts = {} # map docID:#occurence within docID
+        self.counts = {}  # map docID:#occurence within docID
         # TODO counts notwendig?
         # TODO ein Objekt für alle drei?
 
@@ -375,6 +375,3 @@ class Postinglist:
 
     def final_sort(self) -> None:
         self.plist = sorted(self.plist)
-        #, key=lambda x: int(x.split('-')[1]))
-
-
