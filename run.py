@@ -1,9 +1,5 @@
-import time
-
-import configuration
-from indexer import *
-from tokenizer import *
 from query_processing import *
+from tokenizer import *
 
 
 # --------------------------------------------------------------------------- #
