@@ -57,7 +57,8 @@ class Index:
 
         for docID, tokens in tokenize_documents(docs):
             positionCounter = 1
-            self.documentIDs.add(docID)
+            int_doc_id = int(docID)
+            self.documentIDs.add(int_doc_id)
             for token in tokens:
                 try:
                     ti = self.termClassMapping[token]
@@ -66,10 +67,10 @@ class Index:
                     self.termClassMapping[token] = ti
 
                 try:
-                    self.dictionary[ti].append(docID, positionCounter)
+                    self.dictionary[ti].append(int_doc_id, positionCounter)
                     ti.occurence += 1
                 except KeyError:
-                    self.dictionary[ti] = Postinglist(docID, positionCounter)
+                    self.dictionary[ti] = Postinglist(int_doc_id, positionCounter)
 
                 positionCounter += 1
 
@@ -138,24 +139,32 @@ class Index:
     def to_json(self) -> None:
         obj = {}
         for key, val in self.dictionary.items():
-            obj.update({key.term: {'key_occurence':key.occurence,
-                                   'postinglist':val.plist,
-                                   'positions':val.positions,
-                                   'counts':val.counts}
+            obj.update({key.term: {'key_occurence': key.occurence,
+                                   'postinglist': val.plist,
+                                   'positions': val.positions,
+                                   'counts': val.counts}
                         })
         with open(configuration.JSON_FILE, 'w') as f:
             json.dump(obj, f)
 
     # --------------------------------------------------------------------------- #
     def from_json(self) -> None:
-        """
+
+        # TODO does not work as JSON converts all keys into strings and we have int keys, exception occurs with
+        #  example #1
         with open('index.json', 'r', encoding='utf8') as f:
             readIndex = json.load(f)
         a = 1
         for term, indexinfo in readIndex.items():
-            pass
-        """
-        pass
+            ti = TermIndex(term)
+            ti.occurence = int(indexinfo["key_occurence"])
+            self.termClassMapping[term] = ti
+            posting_list = Postinglist()
+            posting_list.plist = list(indexinfo["postinglist"])
+            posting_list.positions = dict(indexinfo["positions"])
+            posting_list.counts = dict(indexinfo["counts"])
+            posting_list.seenDocIDs = list(indexinfo["postinglist"])
+            self.dictionary[ti] = posting_list
 
     """
     # --------------------------------------------------------------------------- #
