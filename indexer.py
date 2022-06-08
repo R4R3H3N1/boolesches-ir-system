@@ -22,12 +22,12 @@ class Index:
             print("Started creating index")
             start = time.time()
             self.invoke_toknizer(filename)
-            print(f"Creating index took {time.time() - start} seconds.")
+            print(f"Creating index took {round(time.time() - start, 3)} seconds.")
             if configuration.KGRAM_INDEX_ENABLED:
                 print("Started creating kgram-index")
                 start = time.time()
                 self.create_kgram_index()
-                print(f"Creating kgram-index took {time.time() - start} seconds.")
+                print(f"Creating kgram-index took {round(time.time() - start, 3)} seconds.")
         else:
             print("Started creating index from JSON file")
             start = time.time()
@@ -37,7 +37,7 @@ class Index:
                 print("Started creating kgram-index")
                 start = time.time()
                 self.create_kgram_index()
-                print(f"Creating kgram-index took {time.time() - start} seconds.")
+                print(f"Creating kgram-index took {round(time.time() - start, 3)} seconds.")
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
@@ -353,10 +353,8 @@ class Postinglist:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
 
-    # TODO remove?
-    """
+
     def append_list_pos(self, docID: str, positions: List[int]) -> None:
-        # TODO similar to function above?
         try:
             self.positions[docID] += positions
         except KeyError:
@@ -372,7 +370,8 @@ class Postinglist:
         else:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
-    """
+
+
 
     def final_sort_postinglist(self) -> None:
         self.plist = sorted(self.plist)

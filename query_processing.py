@@ -138,7 +138,7 @@ class QueryProcessing:
             print(f"INFO: Activating Spell Checker for {term}")
             start = time.time()
             result = self.index.find_alternative_docids(term.strip())
-            print(f"INFO: Spell checker took {time.time() - start} seconds.")
+            print(f"INFO: Spell checker took {round(time.time() - start, 3)} seconds.")
 
         return result
 
