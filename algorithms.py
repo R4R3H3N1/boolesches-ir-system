@@ -1,6 +1,11 @@
 import numpy as np
 
-# TODO remove file
+def jaccard_coefficient(list1, list2):
+    set_a, set_b = set(list1), set(list2)
+    try:
+        return len(set_a.intersection(set_b)) / len(set_a.union(set_b))
+    except ZeroDivisionError:
+        return 0
 
 def levenshtein_distance(src, tgt):
     deletion = 1

@@ -1,10 +1,10 @@
-ID_FILE = "ID.txt"
+ID_FILE = "io/ID.txt"
 
-JSON_FILE = "index.json"
+JSON_FILE = "io/index.json"
 
 PARSE_DOC_DUMP = True
 
-WRITE_DICTIONARY_INTO_JSON = True
+WRITE_DICTIONARY_INTO_JSON = False
 
 READ_DICTIONARY_FROM_JSON = False
 

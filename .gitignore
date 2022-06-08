@@ -134,5 +134,5 @@ dmypy.json
 
 # Dataset
 nfcorpus/
-ID.txt
-index.json
+io/ID.txt
+io/index.json

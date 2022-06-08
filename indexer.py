@@ -1,13 +1,10 @@
 from __future__ import annotations
-
-import time
-
 from tokenizer import tokenize_documents
-import json
+import json, time
 from typing import Type, List, Set
+
 import configuration
-import levenshtein
-from jaccard_index import jaccard_index
+from algorithms import jaccard_coefficient, levenshtein_distance
 
 
 # =========================================================================== #
@@ -75,7 +72,7 @@ class Index:
                 positionCounter += 1
 
         for key, val in self.dictionary.items():
-            val.final_sort()
+            val.final_sort_postinglist()
 
     # --------------------------------------------------------------------------- #
     def create_kgram_index(self):
@@ -104,8 +101,12 @@ class Index:
             posting_list = self.dictionary[self.termClassMapping[alternative_term]]
             for doc_id in posting_list.plist:
                 result.append(doc_id, posting_list.positions[doc_id])
+                # TODO append caused positions to be nested list
 
-        result.final_sort()
+        for docID in result.positions:
+            result.positions[docID] = sorted(result.positions[docID])
+
+        result.final_sort_postinglist()
         return result
 
     def find_term_alternatives(self, term: str) -> List[str]:
@@ -124,15 +125,16 @@ class Index:
         candidates_after_jaccard = []
         for candidate_term in candidate_terms:
             candidate_kgrams = self.kgrams(candidate_term, configuration.K)
-            if jaccard_index(term_kgrams, candidate_kgrams) >= configuration.J:
+            if jaccard_coefficient(term_kgrams, candidate_kgrams) >= configuration.J:
                 candidates_after_jaccard.append(candidate_term)
 
         # Filter candidates again after Levenshtein Distance
         candidates_after_levenshtein = []
         for candidate_term in candidates_after_jaccard:
-            if levenshtein.levenshtein_distance(term, candidate_term) <= configuration.MAX_LEVENSHTEIN_DISTANCE:
+            if levenshtein_distance(term, candidate_term) <= configuration.MAX_LEVENSHTEIN_DISTANCE:
                 candidates_after_levenshtein.append(candidate_term)
 
+        # TODO duplicate entries
         return candidates_after_levenshtein
 
     # --------------------------------------------------------------------------- #
@@ -152,7 +154,7 @@ class Index:
 
         # TODO does not work as JSON converts all keys into strings and we have int keys, exception occurs with
         #  example #1
-        with open('index.json', 'r', encoding='utf8') as f:
+        with open('io/index.json', 'r', encoding='utf8') as f:
             readIndex = json.load(f)
         a = 1
         for term, indexinfo in readIndex.items():
@@ -165,28 +167,6 @@ class Index:
             posting_list.counts = dict(indexinfo["counts"])
             posting_list.seenDocIDs = list(indexinfo["postinglist"])
             self.dictionary[ti] = posting_list
-
-    """
-    # --------------------------------------------------------------------------- #
-    def merge(self, str1: str, str2: str = None, operator: str = 'and') -> List[int]:
-        # TODO mehrere Postinglisten
-        Postinglist1 = self.dictionary[self.termClassMapping[str1]]
-        if str2:
-            Postinglist2 = self.dictionary[self.termClassMapping[str2]]
-        # TODO handling wenn nur ein String, aber Operation mit 2 Listen
-
-        if operator in ['and', 'AND']:
-            return self.merge_AND(Postinglist1.plist, Postinglist2.plist)
-
-        elif operator in ['or', 'OR']:
-            return self.merge_OR(Postinglist1.plist, Postinglist2.plist)
-
-        elif operator in ['not', 'NOT']:
-            return self.merge_NOT(Postinglist1.plist, docIDSet=self.documentIDs)
-
-        elif operator in ['and not', 'AND NOT']:
-            return self.merge_ANDNOT(Postinglist1.plist, Postinglist2.plist)
-    """
 
     # --------------------------------------------------------------------------- #
     def phrase_query(self, posting_list1: Postinglist, posting_list2: Postinglist,
@@ -345,12 +325,22 @@ class Postinglist:
     def __getitem__(self, idx):
         return self.plist[idx]
 
-    def append(self, docID: str, position: int) -> None:
-        # TODO wenn in verschiedenen Objekten, dann in Funktionen aufspalten
-        try:
-            self.positions[docID].append(position)
-        except KeyError:
-            self.positions[docID] = [position]
+    # --------------------------------------------------------------------------- #
+    def append(self, docID: str, position: int | List[int]) -> None:
+        #######################
+        if isinstance(position, list):
+            try:
+                [self.positions[docID].append(pos) for pos in position]
+            except KeyError:
+                self.positions[docID] = position
+        else:
+            try:
+                self.positions[docID].append(position)
+            except KeyError:
+                self.positions[docID] = [position]
+
+        # TODO quick fix needs to be improved
+        #######################
 
         try:
             self.counts[docID] += 1
@@ -363,8 +353,10 @@ class Postinglist:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
 
+    # TODO remove?
+    """
     def append_list_pos(self, docID: str, positions: List[int]) -> None:
-        # TODO wenn in verschiedenen Objekten, dann in Funktionen aufspalten
+        # TODO similar to function above?
         try:
             self.positions[docID] += positions
         except KeyError:
@@ -380,6 +372,7 @@ class Postinglist:
         else:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
+    """
 
-    def final_sort(self) -> None:
+    def final_sort_postinglist(self) -> None:
         self.plist = sorted(self.plist)

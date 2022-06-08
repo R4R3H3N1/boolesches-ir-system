@@ -112,6 +112,7 @@ class QueryProcessing:
                 term_one = clause_split[0].replace("\"", "").strip()
                 term_two = clause_split[1].strip()
                 term_three = clause_split[2].replace("\"", "").strip()
+                # TODO exceptions for single and double word queries
 
                 posting_list1 = self.get_posting_list_to_term(term_one)
                 posting_list2 = self.get_posting_list_to_term(term_two)
