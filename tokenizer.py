@@ -56,7 +56,7 @@ def parse_doc_dump() -> None:
         # TODO allgemeiner, nicht von $$$ abhängig
         # TODO strings wie $$$BACKGROUND oder $$$preface auch entfernen (?)
 
-    with open('io/ID.txt', 'w', encoding='utf8') as f:
+    with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.ID_FILE), 'w', encoding='utf8') as f:
         f.write(newDocument)
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 from tokenizer import tokenize_documents
-import json, time
+import json
+import time
+import os
 from typing import Type, List, Set
 
 import configuration
@@ -185,7 +187,7 @@ class Index:
                                    'positions': val.positions,
                                    'counts': val.counts}
                         })
-        with open(configuration.JSON_FILE, 'w') as f:
+        with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.JSON_FILE), "w") as f:
             json.dump(obj, f)
 
     # --------------------------------------------------------------------------- #
@@ -193,7 +195,7 @@ class Index:
 
         # TODO does not work as JSON converts all keys into strings and we have int keys, exception occurs with
         #  example #1
-        with open('io/index.json', 'r', encoding='utf8') as f:
+        with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.JSON_FILE), 'r', encoding='utf8') as f:
             readIndex = json.load(f)
         a = 1
         for term, indexinfo in readIndex.items():

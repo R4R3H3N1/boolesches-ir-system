@@ -1,5 +1,6 @@
 from query_processing import *
 from tokenizer import parse_doc_dump
+import os
 
 
 # --------------------------------------------------------------------------- #
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     if configuration.PARSE_DOC_DUMP:
         parse_doc_dump()
 
-    i = indexer.Index(configuration.ID_FILE)
+    i = indexer.Index(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.ID_FILE))
 
     # Writes dictionary into json file such that it can be loaded next time
     if configuration.WRITE_DICTIONARY_INTO_JSON:
