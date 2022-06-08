@@ -11,7 +11,7 @@ def get_token_from_line(line: str) -> List[str]:
 
 
 # --------------------------------------------------------------------------- #
-def exclude_abstract_beginnings(abstract) -> str:
+def exclude_abstract_beginnings(abstract: str) -> str:
     for beginning in configuration.ABSTRACT_BEGINNINGS:
         abstract = re.sub(r'^' + beginning, '', abstract, re.IGNORECASE).strip()
     return abstract
@@ -35,8 +35,6 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
 
 # --------------------------------------------------------------------------- #
 def parse_doc_dump() -> None:
-    # TODO further preprocessing?
-
     docdumpPath = os.path.join(os.getcwd(), 'nfcorpus', 'raw', 'doc_dump.txt')
     newDocument = ''
     try:

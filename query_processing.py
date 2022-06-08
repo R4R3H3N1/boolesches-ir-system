@@ -126,7 +126,7 @@ class QueryProcessing:
         return result
 
     # --------------------------------------------------------------------------- #
-    def get_posting_list_to_term(self, term) -> indexer.Postinglist:
+    def get_posting_list_to_term(self, term: str) -> indexer.Postinglist:
         print(f"INFO: Retrieving Postinglist for term: {term}")
         result = indexer.Postinglist()
         try:

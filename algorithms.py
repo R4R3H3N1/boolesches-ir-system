@@ -1,13 +1,16 @@
 import numpy as np
 
-def jaccard_coefficient(list1, list2):
+from typing import List
+
+
+def jaccard_coefficient(list1: List, list2: List) -> float:
     set_a, set_b = set(list1), set(list2)
     try:
         return len(set_a.intersection(set_b)) / len(set_a.union(set_b))
     except ZeroDivisionError:
-        return 0
+        return 0.0
 
-def levenshtein_distance(src, tgt):
+def levenshtein_distance(src: str, tgt: str) -> int:
     deletion = 1
     insertion = 1
     def substitution(a,b):

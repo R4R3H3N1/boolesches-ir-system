@@ -327,7 +327,6 @@ class Postinglist:
     def __init__(self, docID: int = None, position: int = None):
         # TODO array.array, numpy array oder liste?
         self.plist = []   # List of sorted DocIDs
-
         self.positions = {}  # map docID:positions within docID
         self.counts = {}  # map docID:#occurence within docID
         # TODO counts notwendig?

@@ -1,5 +1,5 @@
 from query_processing import *
-from tokenizer import *
+from tokenizer import parse_doc_dump
 
 
 # --------------------------------------------------------------------------- #
