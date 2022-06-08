@@ -98,7 +98,6 @@ class Index:
         result = Postinglist()
 
         if len(alternative_terms) > 1:
-
             for alternative_term in alternative_terms:
                 posting_list = self.dictionary[self.termClassMapping[alternative_term]]
                 for doc_id in posting_list.plist:
@@ -152,7 +151,9 @@ class Index:
             if len(candidates_after_levenshtein) > 1:
                 candidates_after_levenshtein = [self.get_single_replacement_from_user(candidates_after_levenshtein)]
         else:
-            candidates_after_levenshtein = [candidate for distance, candidate in distance_term_dict.items()]
+            candidates_after_levenshtein = []
+            for distance, candidates in distance_term_dict.items():
+                candidates_after_levenshtein += candidates
 
         return candidates_after_levenshtein
 
