@@ -128,18 +128,30 @@ class QueryProcessing:
     # --------------------------------------------------------------------------- #
     def get_posting_list_to_term(self, term: str) -> indexer.Postinglist:
         print(f"INFO: Retrieving Postinglist for term: {term}")
-        result = indexer.Postinglist()
         try:
             result = self.index.dictionary[self.index.termClassMapping[term.strip()]]
         except KeyError:
             result = indexer.Postinglist()
 
-        # TODO: merge spell checker result with the result from normal word
         if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
             print(f"INFO: Activating Spell Checker for {term}")
             start = time.time()
-            result = self.index.find_alternative_docids(term.strip())
+            result_spell_checker = self.index.find_alternative_docids(term.strip())
+
+            if not configuration.ONLY_ONE_REPLACEMENT_TERM:
+                # If spell checker did not find anything return base result
+                if len(result_spell_checker) == 0:
+                    return result
+                # Merge Posting List of original word if available
+                if len(result) != 0:
+                    for doc_id in result.plist:
+                        result_spell_checker.append_list_pos(doc_id, result.positions[doc_id])
+                    for doc_id in result_spell_checker.plist:
+                        result_spell_checker.positions[doc_id] = sorted(result_spell_checker.positions[doc_id])
+
+            result_spell_checker.final_sort_postinglist()
             print(f"INFO: Spell checker took {round(time.time() - start, 3)} seconds.")
+            return result_spell_checker
 
         return result
 

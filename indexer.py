@@ -97,35 +97,20 @@ class Index:
         print(f"Spell checker found the following alternative terms: {alternative_terms}.")
         result = Postinglist()
 
-        """
-            postinglists usually exist for a single term
-            now create combined postinglist, considering all alternative terms as a single big term 
-            
-            - add all docIDs of alternative terms 
-                - unique
-            - combine positional info for docIDs
-                - unique
-            - doesn't matter which actual term the position or the docID comes from
-                          
-        """
+        if len(alternative_terms) > 1:
 
-        docIDtoPositionMap = {}
+            for alternative_term in alternative_terms:
+                posting_list = self.dictionary[self.termClassMapping[alternative_term]]
+                for doc_id in posting_list.plist:
+                    result.append(doc_id, posting_list.positions[doc_id])
 
-        for term in alternative_terms:
-            posting_list = self.dictionary[self.termClassMapping[term]]
-            for docID in posting_list.plist:
-                try:
-                    [docIDtoPositionMap[docID].add(pos) for pos in posting_list.positions[docID]]
-                except KeyError:
-                    docIDtoPositionMap[docID] = set(posting_list.positions[docID])
+            for doc_id in result.plist:
+                result.positions[doc_id] = sorted(result.positions[doc_id])
 
-        for docID, positions in docIDtoPositionMap.items():
-            result.append(docID, sorted(list(positions)))
+            result.final_sort_postinglist()
+        elif len(alternative_terms) == 1:
+            result = self.dictionary[self.termClassMapping[alternative_terms[0]]]
 
-        for docID in result.positions:
-            result.positions[docID] = sorted(result.positions[docID])
-
-        result.final_sort_postinglist()
         return result
 
     # --------------------------------------------------------------------------- #
@@ -138,7 +123,8 @@ class Index:
             except KeyError:
                 continue
             for termIndex in termindexList:
-                candidate_terms.add(termIndex.term)
+                if termIndex.term not in candidate_terms:
+                    candidate_terms.add(termIndex.term)
 
         # Filter with Jaccard Index
         candidates_after_jaccard = []
@@ -148,12 +134,41 @@ class Index:
                 candidates_after_jaccard.append(candidate_term)
 
         # Filter candidates again after Levenshtein Distance
-        candidates_after_levenshtein = []
+        smallest_distance = 1000000
+        distance_term_dict = {smallest_distance: []}
         for candidate_term in candidates_after_jaccard:
-            if levenshtein_distance(term, candidate_term) <= configuration.MAX_LEVENSHTEIN_DISTANCE:
-                candidates_after_levenshtein.append(candidate_term)
+            levenshtein_distance_term = levenshtein_distance(term, candidate_term)
+            if levenshtein_distance_term <= configuration.MAX_LEVENSHTEIN_DISTANCE:
+                try:
+                    distance_term_dict[levenshtein_distance_term].append(candidate_term)
+                except KeyError:
+                    distance_term_dict[levenshtein_distance_term] = [candidate_term]
+
+                if levenshtein_distance_term < smallest_distance:
+                    smallest_distance = levenshtein_distance_term
+
+        if configuration.ONLY_ONE_REPLACEMENT_TERM:
+            candidates_after_levenshtein = distance_term_dict[smallest_distance]
+            if len(candidates_after_levenshtein) > 1:
+                candidates_after_levenshtein = [self.get_single_replacement_from_user(candidates_after_levenshtein)]
+        else:
+            candidates_after_levenshtein = [candidate for distance, candidate in distance_term_dict.items()]
 
         return candidates_after_levenshtein
+
+    def get_single_replacement_from_user(self, candidates):
+        print("Spell checker found the following possible replacements please choose one of them: ")
+        for i in range(len(candidates)):
+            print(f"{i} {candidates[i]}")
+        replacement_id = input("Enter the number of the wanted replacement: ")
+        try:
+            replacement_id = int(replacement_id)
+        except ValueError:
+            self.get_single_replacement_from_user(candidates)
+        if replacement_id not in range(len(candidates)):
+            self.get_single_replacement_from_user()
+
+        return candidates[replacement_id]
 
     # --------------------------------------------------------------------------- #
     def to_json(self) -> None:
