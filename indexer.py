@@ -108,7 +108,7 @@ class Index:
                 postinglist.skip_pointer[postinglist.plist[i]] = i + (int(len(postinglist) / skip_gap))
             if termIndex.term == "blood":
                 print(postinglist.skip_pointer)
-                
+
     # --------------------------------------------------------------------------- #
     def find_alternative_docids(self, term: str) -> Postinglist:
         # Finds all alternative terms based on kgrams, Jaccard Index and Levenshtein distance
@@ -279,9 +279,29 @@ class Index:
                 j += 1
             else:
                 if posting_list1.plist[i] < posting_list2.plist[j]:
-                    i += 1
+                    if configuration.ACTIVATE_SKIP_POINTER:
+                        try:
+                            if posting_list1.plist[posting_list1.skip_pointer[posting_list1.plist[i]]] \
+                                    <= posting_list2.plist[j]:
+                                i = posting_list1.skip_pointer[posting_list1.plist[i]]
+                            else:
+                                i += 1
+                        except KeyError:
+                            i += 1
+                    else:
+                        i += 1
                 else:
-                    j += 1
+                    if configuration.ACTIVATE_SKIP_POINTER:
+                        try:
+                            if posting_list2.plist[posting_list2.skip_pointer[posting_list2.plist[j]]] \
+                                    <= posting_list1.plist[i]:
+                                j = posting_list2.skip_pointer[posting_list2.plist[j]]
+                            else:
+                                j += 1
+                        except KeyError:
+                            j += 1
+                    else:
+                        j += 1
         return result
 
     # --------------------------------------------------------------------------- #
@@ -339,7 +359,17 @@ class Index:
                 result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
                 i += 1
             elif posting_list1.plist[i] > posting_list2.plist[j]:
-                j += 1
+                if configuration.ACTIVATE_SKIP_POINTER:
+                    try:
+                        if posting_list2.plist[posting_list2.skip_pointer[posting_list2.plist[j]]] \
+                                <= posting_list1.plist[i]:
+                            j = posting_list2.skip_pointer[posting_list2.plist[j]]
+                        else:
+                            j += 1
+                    except KeyError:
+                        j += 1
+                else:
+                    j += 1
 
         if i != len(posting_list1.plist):
             for x in range(i, len(posting_list1.plist)):

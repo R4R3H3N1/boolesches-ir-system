@@ -40,7 +40,7 @@ class QueryProcessing:
         for and_clause in and_clauses:
             results.append(self.handle_or_clauses(and_clause))
 
-        if configuration.ACTIVATE_SMALL_POSTINGLISTS_FIRST_HEURISTIC:
+        if configuration.ACTIVATE_SMALL_POSTINGLISTS_FIRST_HEURISTIC and len(results) > 2:
             # Sort Postinglists after len frist
             results.sort(key=len)
 
