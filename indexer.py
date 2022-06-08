@@ -99,12 +99,14 @@ class Index:
 
         """
             postinglists usually exist for a single term
-            now create combined postinglist of all alternative terms 
+            now create combined postinglist , considering all alternative terms as a single big term 
             
             - add all docIDs of alternative terms 
                 - unique!
             - combine positional info for docIDs
-                - unique!        
+                - unique!
+            - doesn't matter which actual term the position or the docID comes from
+                          
         """
 
         docIDtoPositionMap = {}
@@ -126,17 +128,17 @@ class Index:
         result.final_sort_postinglist()
         return result
 
+    # --------------------------------------------------------------------------- #
     def find_term_alternatives(self, term: str) -> List[str]:
         term_kgrams = self.kgrams(term, k=configuration.K)
-        threshold = int(.7 * len(term_kgrams))
-        candidate_terms = []
+        candidate_terms = set()
         for kgram in term_kgrams:
             try:
                 termindexList = self.kgramMap[kgram]
             except KeyError:
                 continue
             for termIndex in termindexList:
-                candidate_terms.append(termIndex.term)
+                candidate_terms.add(termIndex.term)
 
         # Filter with Jaccard Index
         candidates_after_jaccard = []
@@ -151,7 +153,6 @@ class Index:
             if levenshtein_distance(term, candidate_term) <= configuration.MAX_LEVENSHTEIN_DISTANCE:
                 candidates_after_levenshtein.append(candidate_term)
 
-        # TODO duplicate entries
         return candidates_after_levenshtein
 
     # --------------------------------------------------------------------------- #
