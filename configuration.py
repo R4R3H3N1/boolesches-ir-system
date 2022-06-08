@@ -27,4 +27,6 @@ MAX_LEVENSHTEIN_DISTANCE = 2
 ONLY_ONE_REPLACEMENT_TERM = True
 # Activate Heuristic to Merge smallest PostingLists first in AND
 ACTIVATE_SMALL_POSTINGLISTS_FIRST_HEURISTIC = True
+# Activate Skip pointer for faster AND and AND NOT merging
+ACTIVATE_SKIP_POINTER = True
 

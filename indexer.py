@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import numpy as np
+
 from tokenizer import tokenize_documents
 import json
 import time
@@ -30,6 +33,8 @@ class Index:
                 start = time.time()
                 self.create_kgram_index()
                 print(f"Creating kgram-index took {round(time.time() - start, 3)} seconds.")
+            if configuration.ACTIVATE_SKIP_POINTER:
+                self.create_skip_pointer()
         else:
             print("Started creating index from JSON file")
             start = time.time()
@@ -93,6 +98,17 @@ class Index:
             kgrams.append(term[i:i + k])
         return kgrams
 
+    # --------------------------------------------------------------------------- #
+    def create_skip_pointer(self):
+
+        for termIndex in self.dictionary.keys():
+            postinglist = self.dictionary[termIndex]
+            skip_gap = int(np.sqrt(len(postinglist)))
+            for i in range(0, len(postinglist) - int(len(postinglist) / skip_gap), int(len(postinglist) / skip_gap)):
+                postinglist.skip_pointer[postinglist.plist[i]] = i + (int(len(postinglist) / skip_gap))
+            if termIndex.term == "blood":
+                print(postinglist.skip_pointer)
+                
     # --------------------------------------------------------------------------- #
     def find_alternative_docids(self, term: str) -> Postinglist:
         # Finds all alternative terms based on kgrams, Jaccard Index and Levenshtein distance
@@ -305,6 +321,7 @@ class Index:
             if docID in pl1set:
                 pass
             else:
+                # TODO: why str() ?
                 result.append(str(docID), -1)
         return result
 
@@ -345,12 +362,13 @@ class TermIndex:
 
 # =========================================================================== #
 class Postinglist:
-    __slots__ = ('plist', 'seenDocIDs', 'positions', 'counts')
+    __slots__ = ('plist', 'seenDocIDs', 'positions', 'skip_pointer',  'counts')
 
     def __init__(self, docID: int = None, position: int = None):
         # TODO array.array, numpy array oder liste?
         self.plist = []   # List of sorted DocIDs
         self.positions = {}  # map docID:positions within docID
+        self.skip_pointer = {}  # map docID: skip_pointer position
         self.counts = {}  # map docID:#occurence within docID
         # TODO counts notwendig?
         # TODO ein Objekt für alle drei?
