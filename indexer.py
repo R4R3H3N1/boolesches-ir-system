@@ -97,11 +97,28 @@ class Index:
         print(f"Spell checker found the following alternative terms: {alternative_terms}.")
         result = Postinglist()
 
-        for alternative_term in alternative_terms:
-            posting_list = self.dictionary[self.termClassMapping[alternative_term]]
-            for doc_id in posting_list.plist:
-                result.append(doc_id, posting_list.positions[doc_id])
-                # TODO append caused positions to be nested list
+        """
+            postinglists usually exist for a single term
+            now create combined postinglist of all alternative terms 
+            
+            - add all docIDs of alternative terms 
+                - unique!
+            - combine positional info for docIDs
+                - unique!        
+        """
+
+        docIDtoPositionMap = {}
+
+        for term in alternative_terms:
+            posting_list = self.dictionary[self.termClassMapping[term]]
+            for docID in posting_list.plist:
+                try:
+                    [docIDtoPositionMap[docID].add(pos) for pos in posting_list.positions[docID]]
+                except KeyError:
+                    docIDtoPositionMap[docID] = set(posting_list.positions[docID])
+
+        for docID, positions in docIDtoPositionMap.items():
+            result.append(docID, sorted(list(positions)))
 
         for docID in result.positions:
             result.positions[docID] = sorted(result.positions[docID])
@@ -327,7 +344,8 @@ class Postinglist:
 
     # --------------------------------------------------------------------------- #
     def append(self, docID: str, position: int | List[int]) -> None:
-        #######################
+        #TODO keep this implementataion and delete function below, or delete list-part of this function
+            #TODO is list-part deleted, use append_list_pos() in find_alternative_docids()
         if isinstance(position, list):
             try:
                 [self.positions[docID].append(pos) for pos in position]
@@ -338,9 +356,6 @@ class Postinglist:
                 self.positions[docID].append(position)
             except KeyError:
                 self.positions[docID] = [position]
-
-        # TODO quick fix needs to be improved
-        #######################
 
         try:
             self.counts[docID] += 1
@@ -370,8 +385,6 @@ class Postinglist:
         else:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
-
-
 
     def final_sort_postinglist(self) -> None:
         self.plist = sorted(self.plist)

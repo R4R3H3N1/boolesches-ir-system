@@ -28,7 +28,7 @@ def input_query(indexer):
         start = time.time()
         result = query.execute_query(query_string)
         print(f"Result: {result.plist}")
-        print(f"Query execution took {round(time.time() - start, 3)} seconds")
+        print(f"Found {len(result)} documents in {round(time.time() - start, 3)} seconds")
         print("--------------------------------------------------")
 
 
