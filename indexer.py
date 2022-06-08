@@ -93,10 +93,12 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     def find_alternative_docids(self, term: str) -> Postinglist:
+        # Finds all alternative terms based on kgrams, Jaccard Index and Levenshtein distance
         alternative_terms = self.find_term_alternatives(term.strip())
         print(f"Spell checker found the following alternative terms: {alternative_terms}.")
         result = Postinglist()
 
+        # Merges Postinglists of all alternative terms
         if len(alternative_terms) > 1:
             for alternative_term in alternative_terms:
                 posting_list = self.dictionary[self.termClassMapping[alternative_term]]
@@ -107,6 +109,7 @@ class Index:
                 result.positions[doc_id] = sorted(result.positions[doc_id])
 
             result.final_sort_postinglist()
+        # Gets Postinglist of single alternative term
         elif len(alternative_terms) == 1:
             result = self.dictionary[self.termClassMapping[alternative_terms[0]]]
 
@@ -146,6 +149,8 @@ class Index:
                 if levenshtein_distance_term < smallest_distance:
                     smallest_distance = levenshtein_distance_term
 
+        # Only return the best replacement term if ONLY_ONE_REPLACEMENT_TERM is true
+        # else return all replacements
         if configuration.ONLY_ONE_REPLACEMENT_TERM:
             candidates_after_levenshtein = distance_term_dict[smallest_distance]
             if len(candidates_after_levenshtein) > 1:
