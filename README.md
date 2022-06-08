@@ -2,4 +2,4 @@
 
 `pip install -r requirements.txt`
 
-test with  `pytest .\tests\test_(...).py`
+test with  `pytest .\tests\test_indexer.py`

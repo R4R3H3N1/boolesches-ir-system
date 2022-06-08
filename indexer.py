@@ -99,12 +99,12 @@ class Index:
 
         """
             postinglists usually exist for a single term
-            now create combined postinglist , considering all alternative terms as a single big term 
+            now create combined postinglist, considering all alternative terms as a single big term 
             
             - add all docIDs of alternative terms 
-                - unique!
+                - unique
             - combine positional info for docIDs
-                - unique!
+                - unique
             - doesn't matter which actual term the position or the docID comes from
                           
         """
