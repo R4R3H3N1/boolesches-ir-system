@@ -134,6 +134,7 @@ class QueryProcessing:
         except KeyError:
             result = indexer.Postinglist()
 
+        # TODO: merge spell checker result with the result from normal word
         if len(result) <= configuration.R and configuration.KGRAM_INDEX_ENABLED:
             print(f"INFO: Activating Spell Checker for {term}")
             start = time.time()
