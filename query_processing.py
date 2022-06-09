@@ -150,7 +150,7 @@ class QueryProcessing:
                 # Merge Posting List of original word if available
                 if len(result) != 0:
                     for doc_id in result.plist:
-                        result_spell_checker.append_list_pos(doc_id, result.positions[doc_id])
+                        result_spell_checker.append (doc_id, result.positions[doc_id])
                     for doc_id in result_spell_checker.plist:
                         result_spell_checker.positions[doc_id] = sorted(result_spell_checker.positions[doc_id])
 

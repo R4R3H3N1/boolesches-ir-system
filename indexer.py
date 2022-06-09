@@ -199,8 +199,8 @@ class Index:
         for key, val in self.dictionary.items():
             obj.update({key.term: {'key_occurence': key.occurence,
                                    'postinglist': val.plist,
-                                   'positions': val.positions,
-                                   'counts': val.counts}
+                                   'positions': val.positions
+                                   }
                         })
         with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.JSON_FILE), "w") as f:
             json.dump(obj, f)
@@ -220,7 +220,6 @@ class Index:
             posting_list = Postinglist()
             posting_list.plist = list(indexinfo["postinglist"])
             posting_list.positions = dict(indexinfo["positions"])
-            posting_list.counts = dict(indexinfo["counts"])
             posting_list.seenDocIDs = list(indexinfo["postinglist"])
             self.dictionary[ti] = posting_list
 
@@ -272,7 +271,7 @@ class Index:
 
         while i < len(posting_list1.plist) and j < len(posting_list2.plist):
             if posting_list1.plist[i] == posting_list2.plist[j]:
-                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
+                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
                               posting_list2.positions[posting_list2.plist[j]])
                 i += 1
                 j += 1
@@ -310,23 +309,23 @@ class Index:
         i, j = 0, 0
         while i < len(posting_list1.plist) and j < len(posting_list2.plist):
             if posting_list1.plist[i] == posting_list2.plist[j]:
-                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
+                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
                               posting_list2.positions[posting_list2.plist[j]])
                 i += 1
                 j += 1
             elif posting_list1.plist[i] < posting_list2.plist[j]:
-                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
                 i += 1
             elif posting_list1.plist[i] > posting_list2.plist[j]:
-                result.append_list_pos(posting_list2.plist[j], posting_list2.positions[posting_list2.plist[j]])
+                result.append(posting_list2.plist[j], posting_list2.positions[posting_list2.plist[j]])
                 j += 1
 
         if i != len(posting_list1.plist):
             for x in range(i, len(posting_list1.plist)):
-                result.append_list_pos(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
+                result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
         if j != len(posting_list2.plist):
             for x in range(j, len(posting_list2.plist)):
-                result.append_list_pos(posting_list2.plist[x], posting_list2.positions[posting_list2.plist[x]])
+                result.append(posting_list2.plist[x], posting_list2.positions[posting_list2.plist[x]])
 
         return result
 
@@ -355,7 +354,7 @@ class Index:
                 i += 1
                 j += 1
             elif posting_list1.plist[i] < posting_list2.plist[j]:
-                result.append_list_pos(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+                result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
                 i += 1
             elif posting_list1.plist[i] > posting_list2.plist[j]:
                 if configuration.ACTIVATE_SKIP_POINTER:
@@ -372,7 +371,7 @@ class Index:
 
         if i != len(posting_list1.plist):
             for x in range(i, len(posting_list1.plist)):
-                result.append_list_pos(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
+                result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
 
         return result
 
@@ -391,16 +390,13 @@ class TermIndex:
 
 # =========================================================================== #
 class Postinglist:
-    __slots__ = ('plist', 'seenDocIDs', 'positions', 'skip_pointer',  'counts')
+    __slots__ = ('plist', 'seenDocIDs', 'positions', 'skip_pointer')
 
     def __init__(self, docID: int = None, position: int = None):
         # TODO array.array, numpy array oder liste?
         self.plist = []   # List of sorted DocIDs
         self.positions = {}  # map docID:positions within docID
         self.skip_pointer = {}  # map docID: skip_pointer position
-        self.counts = {}  # map docID:#occurence within docID
-        # TODO counts notwendig?
-        # TODO ein Objekt für alle drei?
 
         self.seenDocIDs = set()
         if docID:
@@ -414,8 +410,6 @@ class Postinglist:
 
     # --------------------------------------------------------------------------- #
     def append(self, docID: str, position: int | List[int]) -> None:
-        #TODO keep this implementataion and delete function below, or delete list-part of this function
-            #TODO is list-part deleted, use append_list_pos() in find_alternative_docids()
         if isinstance(position, list):
             try:
                 [self.positions[docID].append(pos) for pos in position]
@@ -427,34 +421,12 @@ class Postinglist:
             except KeyError:
                 self.positions[docID] = [position]
 
-        try:
-            self.counts[docID] += 1
-        except KeyError:
-            self.counts[docID] = 1
-
         if docID in self.seenDocIDs:
             pass
         else:
             self.plist.append(docID)
             self.seenDocIDs.add(docID)
 
-
-    def append_list_pos(self, docID: str, positions: List[int]) -> None:
-        try:
-            self.positions[docID] += positions
-        except KeyError:
-            self.positions[docID] = positions
-
-        try:
-            self.counts[docID] += len(positions)
-        except KeyError:
-            self.counts[docID] = len(positions)
-
-        if docID in self.seenDocIDs:
-            pass
-        else:
-            self.plist.append(docID)
-            self.seenDocIDs.add(docID)
-
+    # --------------------------------------------------------------------------- #
     def final_sort_postinglist(self) -> None:
         self.plist = sorted(self.plist)

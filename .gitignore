@@ -136,3 +136,6 @@ dmypy.json
 nfcorpus/
 io/ID.txt
 io/index.json
+
+profile
+tests/profile

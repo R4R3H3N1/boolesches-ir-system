@@ -26,9 +26,9 @@ def test_indexer():
     assert q.execute_query('france \\5 germany').plist == [1114, 3793, 4403]
     assert q.execute_query('\"statistical office of the european commissions\" OR france \\5 germany').plist == [1114, 3793, 4403, 5369]
 
-    assert q.execute_query('france \\5 germany AND NOT \"hodgkin lymphoma\"').plist == [3793, 4403]
+    assert q.execute_query('france \\5 germany AND NOT lymphoma').plist == [3793, 4403]
+    assert q.execute_query('france \\5 germany AND NOT lympoma').plist == [3793, 4403]
 
-    assert q.execute_query('france \\5 germany AND NOT \"hogkin lympoma\"').plist == [3793, 4403]
     assert i.find_term_alternatives('hogkin') == ['hodgkin']
     assert [term in ['lymphoma', 'lymphomas'] for term in i.find_term_alternatives('lympoma')]
 
