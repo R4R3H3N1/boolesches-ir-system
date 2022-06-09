@@ -56,6 +56,11 @@ def parse_doc_dump() -> None:
         # TODO allgemeiner, nicht von $$$ abhängig
         # TODO strings wie $$$BACKGROUND oder $$$preface auch entfernen (?)
 
+    try:
+        os.mkdir(os.path.join(os.getcwd(), configuration.IO_FOLDER))
+    except Exception:
+        pass
+
     with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.ID_FILE), 'w', encoding='utf8') as f:
         f.write(newDocument)
 
