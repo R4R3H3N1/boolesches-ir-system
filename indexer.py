@@ -142,7 +142,7 @@ class Index:
             except KeyError:
                 continue
             for termIndex in termindexList:
-                if termIndex.term not in candidate_terms:
+                if termIndex.term not in candidate_terms and termIndex.term != term:
                     candidate_terms.add(termIndex.term)
 
         # Filter with Jaccard Index

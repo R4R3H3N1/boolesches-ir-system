@@ -142,10 +142,11 @@ class QueryProcessing:
             start = time.time()
             result_spell_checker = self.index.find_alternative_docids(term.strip())
 
+            # If spell checker did not find anything return base result
+            if len(result_spell_checker) == 0:
+                return result
+
             if not configuration.ONLY_ONE_REPLACEMENT_TERM:
-                # If spell checker did not find anything return base result
-                if len(result_spell_checker) == 0:
-                    return result
                 # Merge Posting List of original word if available
                 if len(result) != 0:
                     for doc_id in result.plist:
