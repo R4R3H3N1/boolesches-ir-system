@@ -4,6 +4,7 @@ import time
 
 import indexer
 import configuration
+import algorithms
 
 
 class QueryProcessing:
@@ -26,7 +27,7 @@ class QueryProcessing:
         # Execute all AND NOT clauses
         for i in range(len(results) - 1):
             print("INFO: Executing AND NOT operation")
-            results[i + 1] = self.index.merge_ANDNOT(results[i], results[i+1])
+            results[i + 1] = algorithms.merge_ANDNOT(results[i], results[i+1])
 
         return results[len(results) - 1]
 
@@ -47,7 +48,7 @@ class QueryProcessing:
         # Execute all AND clauses
         for i in range(len(results) - 1):
             print("INFO: Executing AND operation")
-            results[i+1] = self.index.merge_AND(results[i], results[i+1])
+            results[i+1] = algorithms.merge_AND(results[i], results[i+1])
 
         return results[len(results) - 1]
 
@@ -65,7 +66,7 @@ class QueryProcessing:
         # Execute all OR clauses
         for i in range(len(results) - 1):
             print("INFO: Executing OR operation")
-            results[i + 1] = self.index.merge_OR(results[i], results[i+1])
+            results[i + 1] = algorithms.merge_OR(results[i], results[i+1])
 
         return results[len(results) - 1]
 
@@ -83,7 +84,7 @@ class QueryProcessing:
     def handle_not_clause(self, clause: str) -> indexer.Postinglist:
         print(f"INFO: Executing OR operation on {clause}")
         posting_list = self.index.dictionary[self.index.termClassMapping[clause.split("NOT")[1].strip()]]
-        return self.index.merge_NOT(posting_list, self.index.documentIDs)
+        return algorithms.merge_NOT(posting_list, self.index.documentIDs)
 
     # --------------------------------------------------------------------------- #
     def handle_term_and_prox_and_phrase_clause(self, clause: str) -> indexer.Postinglist:
@@ -96,7 +97,7 @@ class QueryProcessing:
             k = int(clause_split[1].split(" ")[0].strip())
 
             print(f"INFO: Executing proximity query on {term_one}, {term_two} and k = {str(k)}")
-            result = self.index.proximity_query(posting_list_one, posting_list_two, k)
+            result = algorithms.proximity_query(posting_list_one, posting_list_two, k)
 
         elif self.is_phrase(clause):
 
@@ -110,7 +111,7 @@ class QueryProcessing:
                 posting_list2 = self.get_posting_list_to_term(term_two)
 
                 print(f"INFO: Executing phrase query on {clause}")
-                result = self.index.phrase_query(posting_list1, posting_list2)
+                result = algorithms.phrase_query(posting_list1, posting_list2)
 
             else:
                 term_one = clause_split[0].replace("\"", "").strip()
@@ -123,7 +124,7 @@ class QueryProcessing:
                 posting_list3 = self.get_posting_list_to_term(term_three)
 
                 print(f"INFO: Executing phrase query on {clause}")
-                result = self.index.phrase_query(posting_list1, posting_list2, posting_list3)
+                result = algorithms.phrase_query(posting_list1, posting_list2, posting_list3)
         else:
             result = self.get_posting_list_to_term(term=clause)
 

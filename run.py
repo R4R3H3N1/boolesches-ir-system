@@ -16,11 +16,11 @@ def input_query(indexer):
 
     query = QueryProcessing(indexer)
     for j in range(len(configuration.QUERY_EXAMPLES)):
-        print(str(j) + ": " + configuration.QUERY_EXAMPLES[j])
+        print("EX" + str(j) + ": " + configuration.QUERY_EXAMPLES[j])
     while True:
         query_string = input("Enter your Query in KNF: ")
         for j in range(len(configuration.QUERY_EXAMPLES)):
-            if query_string == str(j):
+            if query_string == "EX" + str(j):
                 query_string = configuration.QUERY_EXAMPLES[j]
         if query_string == "exit()":
             break
