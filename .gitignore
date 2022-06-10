@@ -138,3 +138,6 @@ io/index.json
 
 profile
 tests/profile
+
+!nfcorpus/raw/doc_dump.txt
+nfcorpus/
