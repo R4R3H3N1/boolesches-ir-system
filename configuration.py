@@ -1,3 +1,7 @@
+import os
+
+DATA_LOCATION = os.path.join(os.getcwd(), "nfcorpus", "raw", "doc_dump.txt")
+
 IO_FOLDER = "io"
 
 ID_FILE = "ID.txt"
@@ -28,7 +32,7 @@ J = 0.2
 # Max levenshtein distance for correction term
 MAX_LEVENSHTEIN_DISTANCE = 2
 # INSIDE THE SPELL CHECKER GET EITHER ONLY ONE REPLACEMENT TERM OR MERGE IDs AND POSITIONS OF ALL POSSIBLE TERMS
-ONLY_ONE_REPLACEMENT_TERM = True
+ONLY_ONE_REPLACEMENT_TERM = False
 # Activate Heuristic to Merge smallest PostingLists first in AND
 ACTIVATE_SMALL_POSTINGLISTS_FIRST_HEURISTIC = True
 # Activate Skip pointer for faster AND and AND NOT merging

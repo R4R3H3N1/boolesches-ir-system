@@ -44,7 +44,7 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
 
 # --------------------------------------------------------------------------- #
 def parse_doc_dump() -> None:
-    docdumpPath = os.path.join(os.getcwd(), 'nfcorpus', 'raw', 'doc_dump.txt')
+    docdumpPath = configuration.DATA_LOCATION
     newDocument = ''
     try:
         with open(docdumpPath, 'r', encoding='utf8') as f:

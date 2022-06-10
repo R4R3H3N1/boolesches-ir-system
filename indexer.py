@@ -188,7 +188,7 @@ class Index:
         except ValueError:
             self.get_single_replacement_from_user(candidates)
         if replacement_id not in range(len(candidates)):
-            self.get_single_replacement_from_user()
+            self.get_single_replacement_from_user(candidates)
 
         return candidates[replacement_id]
 
