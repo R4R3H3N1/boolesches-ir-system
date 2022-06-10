@@ -91,19 +91,19 @@ def merge_AND(posting_list1: indexer.Postinglist, posting_list2: indexer.Posting
     i, j = 0, 0
     result = indexer.Postinglist()
 
-    while i < len(posting_list1.plist) and j < len(posting_list2.plist):
-        if posting_list1.plist[i] == posting_list2.plist[j]:
-            result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
-                          posting_list2.positions[posting_list2.plist[j]])
+    while i < len(posting_list1) and j < len(posting_list2):
+        if posting_list1[i] == posting_list2[j]:
+            result.append(posting_list1[i], posting_list1.positions[posting_list1[i]] +
+                          posting_list2.positions[posting_list2[j]])
             i += 1
             j += 1
         else:
-            if posting_list1.plist[i] < posting_list2.plist[j]:
+            if posting_list1[i] < posting_list2[j]:
                 if configuration.ACTIVATE_SKIP_POINTER:
                     try:
-                        if posting_list1.plist[posting_list1.skip_pointer[posting_list1.plist[i]]] \
-                                <= posting_list2.plist[j]:
-                            i = posting_list1.skip_pointer[posting_list1.plist[i]]
+                        if posting_list1[posting_list1.skip_pointer[posting_list1[i]]] \
+                                <= posting_list2[j]:
+                            i = posting_list1.skip_pointer[posting_list1[i]]
                         else:
                             i += 1
                     except KeyError:
@@ -113,9 +113,9 @@ def merge_AND(posting_list1: indexer.Postinglist, posting_list2: indexer.Posting
             else:
                 if configuration.ACTIVATE_SKIP_POINTER:
                     try:
-                        if posting_list2.plist[posting_list2.skip_pointer[posting_list2.plist[j]]] \
-                                <= posting_list1.plist[i]:
-                            j = posting_list2.skip_pointer[posting_list2.plist[j]]
+                        if posting_list2[posting_list2.skip_pointer[posting_list2[j]]] \
+                                <= posting_list1[i]:
+                            j = posting_list2.skip_pointer[posting_list2[j]]
                         else:
                             j += 1
                     except KeyError:
@@ -129,25 +129,25 @@ def merge_AND(posting_list1: indexer.Postinglist, posting_list2: indexer.Posting
 def merge_OR(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist) -> indexer.Postinglist:
     result = indexer.Postinglist()
     i, j = 0, 0
-    while i < len(posting_list1.plist) and j < len(posting_list2.plist):
-        if posting_list1.plist[i] == posting_list2.plist[j]:
-            result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]] +
-                          posting_list2.positions[posting_list2.plist[j]])
+    while i < len(posting_list1) and j < len(posting_list2):
+        if posting_list1[i] == posting_list2[j]:
+            result.append(posting_list1[i], posting_list1.positions[posting_list1[i]] +
+                          posting_list2.positions[posting_list2[j]])
             i += 1
             j += 1
-        elif posting_list1.plist[i] < posting_list2.plist[j]:
-            result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+        elif posting_list1[i] < posting_list2[j]:
+            result.append(posting_list1[i], posting_list1.positions[posting_list1[i]])
             i += 1
-        elif posting_list1.plist[i] > posting_list2.plist[j]:
-            result.append(posting_list2.plist[j], posting_list2.positions[posting_list2.plist[j]])
+        elif posting_list1[i] > posting_list2[j]:
+            result.append(posting_list2[j], posting_list2.positions[posting_list2[j]])
             j += 1
 
-    if i != len(posting_list1.plist):
-        for x in range(i, len(posting_list1.plist)):
-            result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
-    if j != len(posting_list2.plist):
-        for x in range(j, len(posting_list2.plist)):
-            result.append(posting_list2.plist[x], posting_list2.positions[posting_list2.plist[x]])
+    if i != len(posting_list1):
+        for x in range(i, len(posting_list1)):
+            result.append(posting_list1[x], posting_list1.positions[posting_list1[x]])
+    if j != len(posting_list2):
+        for x in range(j, len(posting_list2)):
+            result.append(posting_list2[x], posting_list2.positions[posting_list2[x]])
 
     return result
 
@@ -171,19 +171,19 @@ def merge_ANDNOT(posting_list1: indexer.Postinglist, posting_list2: indexer.Post
     result = indexer.Postinglist()
     i = 0
     j = 0
-    while i < len(posting_list1.plist) and j < len(posting_list2.plist):
-        if posting_list1.plist[i] == posting_list2.plist[j]:
+    while i < len(posting_list1) and j < len(posting_list2):
+        if posting_list1[i] == posting_list2[j]:
             i += 1
             j += 1
-        elif posting_list1.plist[i] < posting_list2.plist[j]:
-            result.append(posting_list1.plist[i], posting_list1.positions[posting_list1.plist[i]])
+        elif posting_list1[i] < posting_list2[j]:
+            result.append(posting_list1[i], posting_list1.positions[posting_list1[i]])
             i += 1
-        elif posting_list1.plist[i] > posting_list2.plist[j]:
+        elif posting_list1[i] > posting_list2[j]:
             if configuration.ACTIVATE_SKIP_POINTER:
                 try:
-                    if posting_list2.plist[posting_list2.skip_pointer[posting_list2.plist[j]]] \
-                            <= posting_list1.plist[i]:
-                        j = posting_list2.skip_pointer[posting_list2.plist[j]]
+                    if posting_list2[posting_list2.skip_pointer[posting_list2[j]]] \
+                            <= posting_list1[i]:
+                        j = posting_list2.skip_pointer[posting_list2[j]]
                     else:
                         j += 1
                 except KeyError:
@@ -191,9 +191,9 @@ def merge_ANDNOT(posting_list1: indexer.Postinglist, posting_list2: indexer.Post
             else:
                 j += 1
 
-    if i != len(posting_list1.plist):
-        for x in range(i, len(posting_list1.plist)):
-            result.append(posting_list1.plist[x], posting_list1.positions[posting_list1.plist[x]])
+    if i != len(posting_list1):
+        for x in range(i, len(posting_list1)):
+            result.append(posting_list1[x], posting_list1.positions[posting_list1[x]])
 
     return result
 

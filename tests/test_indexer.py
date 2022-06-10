@@ -20,11 +20,11 @@ def test_indexer():
     assert q.execute_query('germany AND NOT eu').plist == [822, 1114, 1242, 1530, 1755, 1757, 1963, 2633, 2654, 3793, 4403, 4418, 5138, 5148]
     assert q.execute_query('germany AND eu').plist == [5369]
 
-    assert q.execute_query('eu AND NOT germany').plist == [333, 806, 815, 1753, 2392, 2399, 2407, 3066, 3081, 3090, 3773, 4406, 4437, 4747, 4910, 4912, 5253]
+    assert q.execute_query('eu AND NOT germany').plist == [333, 806, 815, 1753, 2392, 2399, 2407, 3066, 3081, 3090, 3773, 4406, 4437, 4747, 4910, 4912]
 
-    assert q.execute_query('\"statistical office of the european commissions\"').plist == [5369]
+    assert q.execute_query('\"statistical office\"').plist == [5369]
     assert q.execute_query('france \\5 germany').plist == [1114, 3793, 4403]
-    assert q.execute_query('\"statistical office of the european commissions\" OR france \\5 germany').plist == [1114, 3793, 4403, 5369]
+    assert q.execute_query('\"statistical office\" OR france \\5 germany').plist == [1114, 3793, 4403, 5369]
 
     assert q.execute_query('france \\5 germany AND NOT lymphoma').plist == [3793, 4403]
     assert q.execute_query('france \\5 germany AND NOT lympoma').plist == [3793, 4403]

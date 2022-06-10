@@ -105,7 +105,7 @@ class Index:
             postinglist = self.dictionary[termIndex]
             skip_gap = int(np.sqrt(len(postinglist)))
             for i in range(0, len(postinglist) - int(len(postinglist) / skip_gap), int(len(postinglist) / skip_gap)):
-                postinglist.skip_pointer[postinglist.plist[i]] = i + (int(len(postinglist) / skip_gap))
+                postinglist.skip_pointer[postinglist[i]] = i + (int(len(postinglist) / skip_gap))
 
     # --------------------------------------------------------------------------- #
     def find_alternative_docids(self, term: str) -> Postinglist:
