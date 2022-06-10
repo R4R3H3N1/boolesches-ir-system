@@ -7,7 +7,16 @@ import configuration
 
 # --------------------------------------------------------------------------- #
 def get_token_from_line(line: str) -> List[str]:
-    return [x.lower() for x in re.split("[ |\"|\?|,|!|.|&|\n|;|:|...|-|\\\|/|(|)|\[|\]|\“]", line) if x != '']
+
+    line = line.lower()
+
+    for character in configuration.TERM_SPLIT_CHARACTERS:
+        line = line.replace(character, " ")
+
+    if line[len(line) - 1] == ".":
+        line = line[:-1]
+
+    return [x.strip() for x in re.split(" ", line) if x not in configuration.STOP_WORDS]
 
 
 # --------------------------------------------------------------------------- #
