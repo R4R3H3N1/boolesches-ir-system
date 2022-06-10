@@ -20,6 +20,6 @@ test with  `pytest .\tests\test_indexer.py`
    6. `diet \10 health`: 0.007 seconds
    7. `diet \10 health AND "red wine"`: 0.007 seconds
 3. Spell checker results:
-   1. `blod`: 0.004 seconds with 11 possible replacements 
-   2. `presure`: 0.02 seconds with 5 possible replacements
-   3. `analysi`: 0.019 seconds with 8 possible replacements
+   1. `blod`: 0.004 seconds with 6 possible replacements 
+   2. `presure`: 0.02 seconds with 1 possible replacements
+   3. `analysi`: 0.019 seconds with 2 possible replacements

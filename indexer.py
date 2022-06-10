@@ -172,9 +172,7 @@ class Index:
             if len(candidates_after_levenshtein) > 1:
                 candidates_after_levenshtein = [self.get_single_replacement_from_user(candidates_after_levenshtein)]
         else:
-            candidates_after_levenshtein = []
-            for distance, candidates in distance_term_dict.items():
-                candidates_after_levenshtein += candidates
+            candidates_after_levenshtein = distance_term_dict[smallest_distance]
 
         return candidates_after_levenshtein
 
