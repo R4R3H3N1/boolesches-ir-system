@@ -46,6 +46,5 @@ if __name__ == '__main__':
     if configuration.WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
 
+    # Starts query
     input_query(i)
-
-    # TODO Optimierungen, z.B. mit seltenstem Term beginnen

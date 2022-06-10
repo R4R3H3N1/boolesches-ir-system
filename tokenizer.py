@@ -62,8 +62,6 @@ def parse_doc_dump() -> None:
         abstract = exclude_abstract_beginnings(abstract)
 
         newDocument += (ID + '$$$' + abstract + '\n')
-        # TODO allgemeiner, nicht von $$$ abhängig
-        # TODO strings wie $$$BACKGROUND oder $$$preface auch entfernen (?)
 
     try:
         os.mkdir(os.path.join(os.getcwd(), configuration.IO_FOLDER))
