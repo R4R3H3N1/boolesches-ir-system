@@ -46,5 +46,5 @@ if __name__ == '__main__':
     if configuration.WRITE_DICTIONARY_INTO_JSON:
         i.to_json()
 
-    # Starts query
+    # Starts query session and awaits user input
     input_query(i)

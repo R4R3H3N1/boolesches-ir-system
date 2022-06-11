@@ -29,7 +29,7 @@ def levenshtein_distance(src: str, tgt: str) -> int:
     dist = np.zeros((n+1, m+1))
     dist[0][0] = 0
 
-    for row in range(1, n+1):   # range() not inclusive
+    for row in range(1, n+1):
         dist[row][0] = dist[row-1][0] + deletion
 
     for col in range(1, m+1):
@@ -71,8 +71,8 @@ def phrase_query(posting_list1: indexer.Postinglist, posting_list2: indexer.Post
 
 
 # --------------------------------------------------------------------------- #
-def proximity_query(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist, k: int = 1) \
-        -> indexer.Postinglist:
+def proximity_query(posting_list1: indexer.Postinglist, posting_list2: indexer.Postinglist,
+                    k: int = 1) -> indexer.Postinglist:
 
     candidates = merge_AND(posting_list1, posting_list2)
     result = indexer.Postinglist()

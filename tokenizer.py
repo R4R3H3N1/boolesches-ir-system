@@ -13,7 +13,8 @@ def get_token_from_line(line: str) -> List[str]:
     for character in configuration.TERM_SPLIT_CHARACTERS:
         line = line.replace(character, " ")
 
-    if line[len(line) - 1] == ".":
+    #if line[len(line) - 1] == ".":
+    if line.endswith('.'):
         line = line[:-1]
 
     return [x.strip() for x in re.split(" ", line) if x not in configuration.STOP_WORDS]
@@ -21,6 +22,9 @@ def get_token_from_line(line: str) -> List[str]:
 
 # --------------------------------------------------------------------------- #
 def exclude_abstract_beginnings(abstract: str) -> str:
+    """
+    remove terms like preface, summary, etc. from document abstarct
+    """
     for beginning in configuration.ABSTRACT_BEGINNINGS:
         abstract = re.sub(r'^' + beginning, '', abstract, re.IGNORECASE).strip()
     return abstract
@@ -44,6 +48,9 @@ def tokenize_documents(documents: List[str]) -> Generator[Tuple[str, List[str]],
 
 # --------------------------------------------------------------------------- #
 def parse_doc_dump() -> None:
+    """
+    transform doc_dump.txt into pairs of ID and text
+    """
     docdumpPath = configuration.DATA_LOCATION
     newDocument = ''
     try:

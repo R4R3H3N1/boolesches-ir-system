@@ -17,12 +17,12 @@ class Index:
     __slots__ = ('dictionary', 'termClassMapping', 'documentIDs', 'kgramMap')
 
     def __init__(self, filename: str):
-        # dict[TermIndex, Postinglist]
+
         self.dictionary = {}
         self.termClassMapping = {}
         self.kgramMap = {}
         self.documentIDs = set()
-        # TODO Sortierungsschritte (notwendig?)
+
         if not configuration.READ_DICTIONARY_FROM_JSON:
             print("Started creating index")
             start = time.time()
@@ -48,8 +48,6 @@ class Index:
 
     # --------------------------------------------------------------------------- #
     def invoke_toknizer(self, filename: str) -> None:
-        # TODO skip-pointer (see below)
-        # TODO nur Differenz der DocIDs speichern (Glaube nicht nötig da eh alles in den Hauptspeicher passt)
 
         try:
             with open(filename, 'r', encoding='utf8') as f:
@@ -205,11 +203,9 @@ class Index:
     # --------------------------------------------------------------------------- #
     def from_json(self) -> None:
 
-        # TODO does not work as JSON converts all keys into strings and we have int keys, exception occurs with
-        #  example #1
+        # does not work as JSON converts all keys into strings and we have int keys
         with open(os.path.join(os.getcwd(), configuration.IO_FOLDER, configuration.JSON_FILE), 'r', encoding='utf8') as f:
             readIndex = json.load(f)
-        a = 1
         for term, indexinfo in readIndex.items():
             ti = TermIndex(term)
             ti.occurence = int(indexinfo["key_occurence"])
@@ -238,7 +234,6 @@ class Postinglist:
     __slots__ = ('plist', 'seenDocIDs', 'positions', 'skip_pointer')
 
     def __init__(self, docID: int = None, position: int = None):
-        # TODO array.array, numpy array oder liste?
         self.plist = []   # List of sorted DocIDs
         self.positions = {}  # map docID:positions within docID
         self.skip_pointer = {}  # map docID: skip_pointer position
