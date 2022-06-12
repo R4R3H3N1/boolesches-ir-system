@@ -8,6 +8,8 @@
 
 test with  `pytest .\tests\test_indexer.py`
 
+https://hub.docker.com/r/mxibbls/inr
+
 ## Evaluation 
 
 1. Creating the index takes on average 3.5 seconds.
