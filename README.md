@@ -2,6 +2,13 @@
 
 > **_NOTE:_** Before starting the application make configuration inside [configuration.py](configuration.py)
 
+Start with `python run.py` and follow the instructions.
+
+Alternatively with docker:
+`docker build -t boolean_inr_system .`
+`docker run -it boolean_inr_system`
+
+
 ## run some testing 
 
 `pip install -r requirements.txt`
